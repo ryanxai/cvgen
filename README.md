@@ -2,11 +2,9 @@
 
 ![Resume Preview](docs/resume_preview-1.png)
 
-A flexible system to generate professional PDF resumes from structured YAML data using Python and LaTeX.
-
 ## Overview
 
-This project allows you to maintain your resume content in an easy-to-edit YAML format while generating a professionally styled PDF using LaTeX. You can run it either locally or with Docker.
+This project allows you to maintain your resume content in an easy-to-edit YAML format while generating a professionally styled PDF using Python and LaTeX. You can run it either locally or with Docker.
 
 ## Usage Options
 
