@@ -1,6 +1,6 @@
 # YAML to PDF Resume Builder
 
-![Resume Preview](docs/resume_preview-1.png)
+![Resume Preview](docs/resume_preview_top_half.png)
 
 ## Overview
 
