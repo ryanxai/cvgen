@@ -1,0 +1,204 @@
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+
+% Setup hyperref for colored links
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+% Page styling
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Fix footskip warning
+\setlength{\footskip}{5pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[2]{
+  \item\small{
+    \textbf{#1}{: #2 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-1pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}\vspace{-4pt}}
+
+\renewcommand{\labelitemii}{$\circ$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+\begin{document}
+
+% Name at the top
+\begin{flushleft}{\LARGE \textbf{John Doe}}
+\end{flushleft}
+\vspace{-10pt}
+\noindent{\rule{\linewidth}{0.4pt}}
+
+\vspace{3pt}
+
+% Contact information with links on the same line
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
+  Phone: +1 (555) 123-4567 & Email: john.doe@example.com \\
+  \href{https://github.com/johndoe-datascientist}{GitHub} $\vert$ \href{https://stackoverflow.com/users/123456756466/johndoe}{StackOverflow} $\vert$ \href{https://scholar.google.com/citations?user=ABCDEFGHIJKLK}{GoogleScholar} $\vert$ \href{https://www.linkedin.com/in/john-doe-datascientist/}{LinkedIn} & Location: Boston, MA, United States
+\end{tabular*}
+
+% Professional Summary
+\section{Professional Summary}
+\justifying
+Data Scientist with 7+ years of experience specializing in machine learning, predictive modeling, and data visualization. Strong background in developing end-to-end ML solutions from concept to production. Expertise in NLP, time series analysis, and recommender systems. Proven track record of delivering data-driven insights that drive business growth and operational efficiency across finance, retail, and healthcare sectors.
+
+
+% Technical Skills
+\section{Technical Skills}
+\resumeSubHeadingListStart
+  \resumeSubheading
+    {Languages \& Frameworks}{}
+    {Python, R, SQL, TensorFlow, PyTorch, scikit-learn, Pandas, NumPy}{}
+  \resumeSubheading
+    {Infrastructure}{}
+    {AWS, Azure, Docker, Kubernetes, Git, MongoDB, PostgreSQL}{}
+  \resumeSubheading
+    {Data Science \& ML}{}
+    {Machine Learning, Deep Learning, NLP, Time Series Analysis, A/B Testing, Statistical Modeling}{}
+
+\resumeSubHeadingListEnd
+
+% Experience
+\section{Professional Experience}
+\resumeSubHeadingListStart
+  \resumeSubheading
+  {Senior Data Scientist}{Mar 2021 - Present}
+  {\href{https://www.techinnovate.example.com}{TechInnovate Inc.}{: AI-powered business intelligence platform}}{Boston, MA}
+    \resumeItemListStart
+      \resumeItem{Customer Churn Prediction}
+      {Developed and deployed a machine learning pipeline that predicts customer churn with 87\% accuracy, resulting in a 23\% reduction in customer attrition through targeted retention campaigns}
+      \resumeItem{Recommender System}
+      {Architected a hybrid recommender system combining collaborative filtering and content-based approaches, increasing user engagement by 35\% and average order value by 18\%}
+      \resumeItem{NLP Document Classifier}
+      {Built an automated document classification system using BERT, achieving 92\% accuracy across 15 document categories, reducing manual processing time by 75\%}
+      \resumeItemListEnd
+
+  \resumeSubheading
+  {Data Scientist}{Jun 2018 - Feb 2021}
+  {\href{https://www.findata.example.com}{FinData Analytics}{: Financial services data analytics firm}}{New York, NY}
+    \resumeItemListStart
+      \resumeItem{Fraud Detection System}
+      {Led the development of a real-time fraud detection system using gradient boosting models and anomaly detection techniques, reducing fraudulent transactions by 63\% and saving an estimated \$2.5M annually}
+      \resumeItem{Market Trend Analysis}
+      {Created time series forecasting models to predict market trends with 82\% accuracy, enabling clients to optimize investment strategies and achieve 15\% above-benchmark returns}
+      \resumeItem{Risk Assessment Tool}
+      {Designed a comprehensive risk scoring system integrating structured and unstructured data sources, improving risk assessment accuracy by 40\% and reducing default rates by 28\%}
+      \resumeItemListEnd
+
+  \resumeSubheading
+  {Data Analyst}{Aug 2016 - May 2018}
+  {\href{https://www.healthmetrics.example.com}{HealthMetrics}{: Healthcare analytics company}}{Chicago, IL}
+    \resumeItemListStart
+      \resumeItem{Patient Readmission Predictor}
+      {Developed a predictive model identifying high-risk patients for hospital readmission with 79\% accuracy, helping healthcare providers implement targeted interventions that reduced readmission rates by 22\%}
+      \resumeItem{Medical Image Classification}
+      {Implemented a CNN-based classification system for medical images, achieving 88\% accuracy in identifying abnormalities and reducing diagnostic time by 45\%}
+      \resumeItemListEnd
+
+
+\resumeSubHeadingListEnd
+
+% Education
+\section{Education}
+\resumeSubHeadingListStart
+    \resumeSubheading
+      {M.S. in Data Science}{Sep 2014 -- May 2016}
+      {Massachusetts Institute of Technology}{Cambridge, MA}
+    \resumeSubheading
+      {B.S. in Computer Science, Minor in Statistics}{Sep 2010 -- May 2014}
+      {University of California, Berkeley}{Berkeley, CA}
+
+\resumeSubHeadingListEnd
+
+% Awards
+\section{Awards and Honors}
+\resumeSubHeadingListStart
+    \resumeSubheading
+      {Best Paper Award}{Dec 2022}
+      {International Conference on Machine Learning Applications $\vert$ \href{https://www.icmla.example.org}{Advanced Techniques in Time Series Forecasting}}{Online}
+    \resumeSubheading
+      {Kaggle Competition - Top 5\%}{Mar 2020}
+      {Kaggle $\vert$ \href{https://www.kaggle.com/competitions}{Customer Segmentation Challenge}}{Online}
+
+\resumeSubHeadingListEnd
+
+% Certifications
+\section{Certifications}
+\resumeSubHeadingListStart
+    \resumeSubheading
+      {AWS Certified Machine Learning - Specialty}{Sep 2022}
+      {\href{https://aws.amazon.com/certification/certified-machine-learning-specialty/}{Certificate}}{Amazon Web Services}
+    \resumeSubheading
+      {Professional Certificate in Data Science}{Jun 2019}
+      {\href{https://www.edx.org/professional-certificate/harvardx-data-science}{Certificate}}{Harvard University (edX)}
+
+\resumeSubHeadingListEnd
+
+% Publications
+\section{Selected Publications}
+\begin{enumerate}[noitemsep, leftmargin=*,label={[\arabic*]}]
+  \item{Doe, J., Smith, A., Johnson, B., ``Hybrid Approaches to Time Series Forecasting in Financial Markets'', Journal of Applied Data Science, Vol. 15, 2023. \href{https://example.com/journal/jads/vol15}{link}}
+  \vspace{5pt}
+  \item{Johnson, B., Doe, J., Williams, C., ``Explainable AI in Healthcare: Methods and Applications'', International Conference on Health Informatics, 2021. \href{https://example.com/conferences/ichi2021}{link}}
+
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,139 @@
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+
+% Setup hyperref for colored links
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+% Page styling
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Fix footskip warning
+\setlength{\footskip}{5pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[2]{
+  \item\small{
+    \textbf{#1}{: #2 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-1pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}\vspace{-4pt}}
+
+\renewcommand{\labelitemii}{$\circ$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+\begin{document}
+
+% Name at the top
+\begin{flushleft}{\LARGE \textbf{NAME}}
+\end{flushleft}
+\vspace{-10pt}
+\noindent{\rule{\linewidth}{0.4pt}}
+
+\vspace{3pt}
+
+% Contact information with links on the same line
+\begin{tabular*}{\textwidth}{l@{\extracolsep{\fill}}r}
+  Phone: PHONE & Email: EMAIL \\
+  LINKS & Location: LOCATION
+\end{tabular*}
+
+% Professional Summary
+\section{Professional Summary}
+\justifying
+SUMMARY
+
+% Technical Skills
+\section{Technical Skills}
+\resumeSubHeadingListStart
+SKILLS
+\resumeSubHeadingListEnd
+
+% Experience
+\section{Professional Experience}
+\resumeSubHeadingListStart
+EXPERIENCE
+\resumeSubHeadingListEnd
+
+% Education
+\section{Education}
+\resumeSubHeadingListStart
+EDUCATION
+\resumeSubHeadingListEnd
+
+% Awards
+\section{Awards and Honors}
+\resumeSubHeadingListStart
+AWARDS
+\resumeSubHeadingListEnd
+
+% Certifications
+\section{Certifications}
+\resumeSubHeadingListStart
+CERTIFICATIONS
+\resumeSubHeadingListEnd
+
+% Publications
+\section{Selected Publications}
+\begin{enumerate}[noitemsep, leftmargin=*,label={[\arabic*]}]
+PUBLICATIONS
+\end{enumerate}
+
+\end{document}
