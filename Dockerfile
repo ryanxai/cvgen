@@ -33,6 +33,6 @@ COPY generate_resume.py main.py template.tex resume.yaml ./
 # Expose FastAPI port
 EXPOSE 8000
 
-# Default command to run the FastAPI server
+# Default command to run the FastAPI server using uvicorn directly
 # Can be overridden with: docker run <image> python3 generate_resume.py
-CMD ["python3", "main.py"] 
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info"] 

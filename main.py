@@ -443,4 +443,16 @@ async def generate_from_existing_yaml():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    import os
+    
+    # Get port from environment variable or default to 8000
+    port = int(os.environ.get("PORT", 8000))
+    
+    # Configure uvicorn for production deployment
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", 
+        port=port,
+        log_level="info",
+        access_log=True
+    ) 
