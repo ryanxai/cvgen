@@ -119,6 +119,7 @@ async def root():
         "endpoints": {
             "generate_resume": "POST /generate-resume",
             "upload_yaml": "POST /upload-yaml",
+            "generate_from_yaml": "POST /generate-from-yaml",
             "health": "GET /health",
             "download": "GET /download/{filename}"
         }
@@ -325,6 +326,65 @@ async def cleanup_temp_files():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error cleaning up files: {str(e)}")
+
+@app.post("/generate-from-yaml", response_model=GenerateResumeResponse)
+async def generate_from_existing_yaml():
+    """
+    Generate resume.tex and resume.pdf from the existing resume.yaml file in the project directory
+    """
+    try:
+        yaml_file_path = "resume.yaml"
+        
+        # Check if resume.yaml exists
+        if not os.path.exists(yaml_file_path):
+            raise HTTPException(
+                status_code=404, 
+                detail=f"resume.yaml file not found in project directory. Please ensure resume.yaml exists in the project root."
+            )
+        
+        # Load data from existing YAML file
+        data_dict = load_resume_data(yaml_file_path)
+        
+        # Generate LaTeX file directly in the project root
+        latex_path = "resume.tex"
+        generate_latex_resume(data_dict, output_path=latex_path)
+        
+        # Compile to PDF directly in the project root
+        # Set OUTPUT_DIR to current directory for this operation
+        original_output_dir = os.environ.get('OUTPUT_DIR', '.')
+        os.environ['OUTPUT_DIR'] = '.'
+        
+        pdf_path = compile_latex(latex_path, data=data_dict)
+        
+        # Restore original output directory
+        os.environ['OUTPUT_DIR'] = original_output_dir
+        
+        if not pdf_path or not os.path.exists(pdf_path):
+            raise HTTPException(status_code=500, detail="Failed to generate PDF")
+        
+        # Also copy files to temp directory for download endpoint compatibility
+        import shutil
+        temp_tex_path = os.path.join(TEMP_DIR, "resume.tex")
+        temp_pdf_path = os.path.join(TEMP_DIR, "resume.pdf")
+        
+        if os.path.exists(latex_path):
+            shutil.copy2(latex_path, temp_tex_path)
+            print(f"Copied LaTeX file to temp directory: {temp_tex_path}")
+        
+        if os.path.exists(pdf_path):
+            shutil.copy2(pdf_path, temp_pdf_path)
+            print(f"Copied PDF file to temp directory: {temp_pdf_path}")
+        
+        return GenerateResumeResponse(
+            message="Resume generated successfully from existing resume.yaml",
+            filename="resume.pdf",
+            download_url="/download/resume.pdf"
+        )
+        
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=f"File not found: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating resume from YAML: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

@@ -38,6 +38,7 @@ The API will be available at `http://localhost:8000`
 - **GET `/health`** - Health check endpoint
 - **POST `/generate-resume`** - Generate PDF from JSON resume data
 - **POST `/upload-yaml`** - Upload a YAML file and generate PDF
+- **POST `/generate-from-yaml`** - Generate resume.tex and resume.pdf from existing resume.yaml
 - **GET `/download/{filename}`** - Download generated PDF files
 - **GET `/sample-data`** - Get sample resume data structure
 - **GET `/template`** - Get the LaTeX template content
@@ -82,6 +83,11 @@ curl -X POST "http://localhost:8000/generate-resume" \
 ```bash
 curl -X POST "http://localhost:8000/upload-yaml" \
   -F "file=@resume.yaml"
+```
+
+**Generate from existing resume.yaml:**
+```bash
+curl -X POST "http://localhost:8000/generate-from-yaml"
 ```
 
 **Download generated PDF:**
@@ -146,7 +152,9 @@ docker run --rm -v $(pwd):/app resume-generator python3 generate_resume.py
 2. The LaTeX template (`template.tex`) defines the styling and layout
 3. The Python script (`generate_resume.py`) combines your data with the template
 4. The FastAPI service (`main.py`) provides web endpoints for the same functionality
-5. The script generates files named with your first and last name (e.g., `John_Doe.tex` and `John_Doe.pdf`)
+5. The endpoints can generate files either with personalized names or as standard `resume.tex` and `resume.pdf`
+   - `/generate-resume` and `/upload-yaml`: Generate files with personalized names
+   - `/generate-from-yaml`: Generate standard `resume.tex` and `resume.pdf` from existing `resume.yaml`
 
 ## Creating Your Resume
 

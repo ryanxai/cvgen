@@ -145,6 +145,35 @@ def test_upload_yaml():
     
     print("-" * 50)
 
+def test_generate_from_yaml():
+    """Test generating resume from existing resume.yaml file"""
+    print("Testing resume generation from existing resume.yaml...")
+    
+    response = requests.post(f"{API_BASE}/generate-from-yaml")
+    
+    if response.status_code == 200:
+        result = response.json()
+        print(f"Status: {response.status_code}")
+        print(f"Message: {result['message']}")
+        print(f"Generated file: {result['filename']}")
+        print(f"Download URL: {result['download_url']}")
+        
+        # Test downloading the file
+        download_response = requests.get(f"{API_BASE}{result['download_url']}")
+        if download_response.status_code == 200:
+            with open(f"existing_yaml_resume.pdf", "wb") as f:
+                f.write(download_response.content)
+            print(f"PDF downloaded successfully as: existing_yaml_resume.pdf")
+        else:
+            print(f"Failed to download PDF: {download_response.status_code}")
+    else:
+        print(f"Failed to generate resume from existing YAML: {response.status_code}")
+        print(f"Error: {response.text}")
+        if response.status_code == 404:
+            print("Note: Make sure resume.yaml exists in the project directory")
+    
+    print("-" * 50)
+
 def test_get_template():
     """Test getting the LaTeX template"""
     print("Testing template retrieval...")
@@ -178,6 +207,9 @@ def main():
         
         # Test YAML upload
         test_upload_yaml()
+        
+        # Test generating from existing YAML
+        test_generate_from_yaml()
         
         # Test template retrieval
         test_get_template()
