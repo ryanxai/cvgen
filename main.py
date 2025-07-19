@@ -126,37 +126,68 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 @app.get("/")
 async def root():
     """Root endpoint with API information"""
-    return {
+    return JSONResponse(content={
         "message": "YAML to PDF Resume Builder API",
         "version": "1.0.0",
+        "status": "running",
         "documentation": {
-            "swagger_ui": "/docs",
-            "redoc": "/redoc",
-            "openapi_schema": "/openapi.json"
+            "swagger_ui": "https://yaml2pdf-resume-builder.fly.dev/docs",
+            "redoc": "https://yaml2pdf-resume-builder.fly.dev/redoc",
+            "openapi_schema": "https://yaml2pdf-resume-builder.fly.dev/openapi.json"
         },
         "endpoints": {
+            "health_check": "GET /health",
             "generate_resume": "POST /generate-resume",
-            "upload_yaml": "POST /upload-yaml",
+            "upload_yaml": "POST /upload-yaml", 
             "generate_from_yaml": "POST /generate-from-yaml",
-            "health": "GET /health",
-            "download": "GET /download/{filename}",
-            "template": "GET /template",
-            "sample_data": "GET /sample-data",
-            "cleanup": "DELETE /cleanup"
+            "download_file": "GET /download/{filename}",
+            "get_template": "GET /template",
+            "get_sample_data": "GET /sample-data",
+            "cleanup_temp": "DELETE /cleanup"
         }
-    }
+    }, status_code=200)
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {
-        "status": "healthy",
+    try:
+        # Basic health check information
+        health_data = {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "service": "resume-builder-api",
+            "version": "1.0.0",
+            "documentation": {
+                "swagger_ui": "/docs",
+                "redoc": "/redoc", 
+                "openapi_schema": "/openapi.json"
+            },
+            "environment": {
+                "temp_dir_exists": os.path.exists(TEMP_DIR),
+                "template_file_exists": os.path.exists("template.tex"),
+                "resume_yaml_exists": os.path.exists("resume.yaml")
+            }
+        }
+        
+        return JSONResponse(content=health_data, status_code=200)
+    
+    except Exception as e:
+        error_data = {
+            "status": "unhealthy",
+            "timestamp": datetime.now().isoformat(),
+            "service": "resume-builder-api",
+            "error": str(e)
+        }
+        return JSONResponse(content=error_data, status_code=500)
+
+@app.get("/test")
+async def test_endpoint():
+    """Simple test endpoint to verify the API is responding"""
+    return JSONResponse(content={
+        "message": "Test endpoint working!",
         "timestamp": datetime.now().isoformat(),
-        "service": "resume-builder-api",
-        "docs_url": "/docs",
-        "redoc_url": "/redoc",
-        "openapi_url": "/openapi.json"
-    }
+        "status": "ok"
+    }, status_code=200)
 
 @app.post("/generate-resume", response_model=GenerateResumeResponse)
 async def generate_resume(resume_data: ResumeData):
