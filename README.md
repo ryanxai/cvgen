@@ -130,8 +130,8 @@ python generate_resume.py
 # Build the container
 docker build -t resume-generator .
 
-# Run the FastAPI server
-docker run -p 8000:8000 resume-generator
+# Run the FastAPI server with volume mounting (recommended)
+docker run -p 8000:8000 -v $(pwd):/app resume-generator
 
 # Access the API at http://localhost:8000
 ```
@@ -145,6 +145,10 @@ docker build -t resume-generator .
 # Run the original command-line version
 docker run --rm -v $(pwd):/app resume-generator python3 generate_resume.py
 ```
+
+#### Important Note About Docker Volume Mounting
+
+When using the `/generate-from-yaml` endpoint, you **must** use volume mounting (`-v $(pwd):/app`) to make the generated `resume.tex` and `resume.pdf` files accessible in your host project directory. Without volume mounting, the files will be generated inside the container but won't be accessible from your host system.
 
 ## How It Works
 
