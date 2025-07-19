@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import os
@@ -30,7 +31,19 @@ from generate_resume import (
 app = FastAPI(
     title="YAML to PDF Resume Builder API",
     description="A FastAPI service to generate professional PDF resumes from structured data",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/docs",  # Explicitly set docs URL
+    redoc_url="/redoc",  # Explicitly set redoc URL
+    openapi_url="/openapi.json"  # Explicitly set OpenAPI schema URL
+)
+
+# Add CORS middleware to ensure docs can load properly
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify your domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Pydantic models for request/response
@@ -116,12 +129,20 @@ async def root():
     return {
         "message": "YAML to PDF Resume Builder API",
         "version": "1.0.0",
+        "documentation": {
+            "swagger_ui": "/docs",
+            "redoc": "/redoc",
+            "openapi_schema": "/openapi.json"
+        },
         "endpoints": {
             "generate_resume": "POST /generate-resume",
             "upload_yaml": "POST /upload-yaml",
             "generate_from_yaml": "POST /generate-from-yaml",
             "health": "GET /health",
-            "download": "GET /download/{filename}"
+            "download": "GET /download/{filename}",
+            "template": "GET /template",
+            "sample_data": "GET /sample-data",
+            "cleanup": "DELETE /cleanup"
         }
     }
 
@@ -131,7 +152,10 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "service": "resume-builder-api"
+        "service": "resume-builder-api",
+        "docs_url": "/docs",
+        "redoc_url": "/redoc",
+        "openapi_url": "/openapi.json"
     }
 
 @app.post("/generate-resume", response_model=GenerateResumeResponse)
