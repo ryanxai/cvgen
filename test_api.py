@@ -101,9 +101,9 @@ def test_generate_resume_json(sample_data: Dict[Any, Any] = None):
         download_response = requests.get(f"{API_BASE}{result['download_url']}")
         if download_response.status_code == 200:
             # Save the PDF locally
-            with open(f"test_{result['filename']}", "wb") as f:
+            with open(f"test_resume.pdf", "wb") as f:
                 f.write(download_response.content)
-            print(f"PDF downloaded successfully as: test_{result['filename']}")
+            print(f"PDF downloaded successfully as: test_resume.pdf")
         else:
             print(f"Failed to download PDF: {download_response.status_code}")
     else:
@@ -131,9 +131,9 @@ def test_upload_yaml():
             # Test downloading the file
             download_response = requests.get(f"{API_BASE}{result['download_url']}")
             if download_response.status_code == 200:
-                with open(f"uploaded_{result['filename']}", "wb") as f:
+                with open(f"uploaded_resume.pdf", "wb") as f:
                     f.write(download_response.content)
-                print(f"PDF downloaded successfully as: uploaded_{result['filename']}")
+                print(f"PDF downloaded successfully as: uploaded_resume.pdf")
             else:
                 print(f"Failed to download PDF: {download_response.status_code}")
         else:

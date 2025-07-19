@@ -231,17 +231,8 @@ def format_publications(pub_items):
 
 def generate_latex_resume(data, template_path='template.tex', output_path=None):
     """Generate a LaTeX resume from the template and data"""
-    # Create firstname_lastname format for the output file
-    if data and 'name' in data:
-        name_parts = data['name'].split()
-        if len(name_parts) >= 2:
-            firstname = name_parts[0].capitalize()
-            lastname = name_parts[-1].capitalize()
-            default_output_name = f"{firstname}_{lastname}.tex"
-        else:
-            default_output_name = 'resume.tex'
-    else:
-        default_output_name = 'resume.tex'
+    # Always use 'resume.tex' as the output filename
+    default_output_name = 'resume.tex'
     
     if output_path is None:
         output_path = os.path.join(OUTPUT_DIR, default_output_name)
@@ -276,18 +267,8 @@ def generate_latex_resume(data, template_path='template.tex', output_path=None):
 def compile_latex(latex_file, output_format="pdf", data=None):
     """Compile the LaTeX file to PDF"""
     try:
-        # Determine the output name
-        if data and 'name' in data:
-            # Split the full name into parts and use first and last name
-            name_parts = data['name'].split()
-            if len(name_parts) >= 2:
-                firstname = name_parts[0].capitalize()
-                lastname = name_parts[-1].capitalize()
-                output_name = f"{firstname}_{lastname}"
-            else:
-                output_name = os.path.splitext(os.path.basename(latex_file))[0]
-        else:
-            output_name = os.path.splitext(os.path.basename(latex_file))[0]
+        # Always use 'resume' as the output name
+        output_name = "resume"
         
         # Set paths
         output_dir = OUTPUT_DIR
@@ -381,14 +362,11 @@ def main():
                 "template.pdf", "template.fdb_latexmk", "template.fls", "template.synctex.gz"
             ]
             
-            # Get the base name of the latex file (without extension)
-            latex_base = os.path.splitext(os.path.basename(latex_file))[0]
-            
-            # Add the specific LaTeX file and its auxiliary files to clean up list
+            # Add the resume auxiliary files to clean up list
             resume_files = [
-                f"{latex_base}.aux", 
-                f"{latex_base}.log",
-                f"{latex_base}.out"
+                "resume.aux", 
+                "resume.log",
+                "resume.out"
                 # Don't remove the .tex file since we want to keep it
             ]
             

@@ -86,7 +86,7 @@ curl -X POST "http://localhost:8000/upload-yaml" \
 
 **Download generated PDF:**
 ```bash
-curl "http://localhost:8000/download/John_Doe.pdf" \
+curl "http://localhost:8000/download/resume.pdf" \
   --output resume.pdf
 ```
 

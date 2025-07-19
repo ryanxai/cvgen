@@ -139,39 +139,52 @@ async def generate_resume(resume_data: ResumeData):
     Generate a PDF resume from structured resume data
     """
     try:
-        # Generate unique filename
-        name_parts = resume_data.name.split()
-        if len(name_parts) >= 2:
-            firstname = name_parts[0].capitalize()
-            lastname = name_parts[-1].capitalize()
-            base_filename = f"{firstname}_{lastname}"
-        else:
-            base_filename = "resume"
-        
-        # Add unique identifier to avoid conflicts
-        unique_id = str(uuid.uuid4())[:8]
-        filename = f"{base_filename}_{unique_id}"
+        # Use fixed filename for simplicity
+        filename = "resume"
         
         # Convert Pydantic models to dict for compatibility with existing functions
         data_dict = resume_data.model_dump()
         
         # Set output directory to temp directory
+        original_output_dir = os.environ.get('OUTPUT_DIR', '.')
         os.environ['OUTPUT_DIR'] = TEMP_DIR
         
         # Generate LaTeX file
         latex_path = os.path.join(TEMP_DIR, f"{filename}.tex")
         generate_latex_resume(data_dict, output_path=latex_path)
         
-        # Compile to PDF
+        # Compile to PDF - need to ensure template files are accessible
+        # Copy template.tex to temp directory for compilation
+        import shutil
+        template_temp_path = os.path.join(TEMP_DIR, 'template.tex')
+        if not os.path.exists(template_temp_path):
+            shutil.copy2('template.tex', template_temp_path)
+        
         pdf_path = compile_latex(latex_path, data=data_dict)
+        
+        # Restore original output directory
+        os.environ['OUTPUT_DIR'] = original_output_dir
         
         if not pdf_path or not os.path.exists(pdf_path):
             raise HTTPException(status_code=500, detail="Failed to generate PDF")
         
+        # Also save copies in the root directory for easy access
+        import shutil
+        root_tex_path = "resume.tex"
+        root_pdf_path = "resume.pdf"
+        
+        if os.path.exists(latex_path):
+            shutil.copy2(latex_path, root_tex_path)
+            print(f"Copied LaTeX file to: {root_tex_path}")
+        
+        if os.path.exists(pdf_path):
+            shutil.copy2(pdf_path, root_pdf_path)
+            print(f"Copied PDF file to: {root_pdf_path}")
+        
         return GenerateResumeResponse(
             message="Resume generated successfully",
-            filename=f"{filename}.pdf",
-            download_url=f"/download/{filename}.pdf"
+            filename="resume.pdf",
+            download_url="/download/resume.pdf"
         )
         
     except Exception as e:
@@ -196,26 +209,27 @@ async def upload_yaml_resume(file: UploadFile = File(...)):
         # Load data from YAML file
         data_dict = load_resume_data(upload_path)
         
-        # Generate unique filename
-        name_parts = data_dict.get('name', 'resume').split()
-        if len(name_parts) >= 2:
-            firstname = name_parts[0].capitalize()
-            lastname = name_parts[-1].capitalize()
-            base_filename = f"{firstname}_{lastname}"
-        else:
-            base_filename = "resume"
-        
-        unique_id = str(uuid.uuid4())[:8]
-        filename = f"{base_filename}_{unique_id}"
+        # Use fixed filename for simplicity
+        filename = "resume"
         
         # Set output directory
+        original_output_dir = os.environ.get('OUTPUT_DIR', '.')
         os.environ['OUTPUT_DIR'] = TEMP_DIR
         
         # Generate LaTeX and PDF
         latex_path = os.path.join(TEMP_DIR, f"{filename}.tex")
         generate_latex_resume(data_dict, output_path=latex_path)
         
+        # Ensure template files are accessible for compilation
+        import shutil
+        template_temp_path = os.path.join(TEMP_DIR, 'template.tex')
+        if not os.path.exists(template_temp_path):
+            shutil.copy2('template.tex', template_temp_path)
+        
         pdf_path = compile_latex(latex_path, data=data_dict)
+        
+        # Restore original output directory
+        os.environ['OUTPUT_DIR'] = original_output_dir
         
         # Clean up uploaded YAML file
         os.remove(upload_path)
@@ -223,10 +237,23 @@ async def upload_yaml_resume(file: UploadFile = File(...)):
         if not pdf_path or not os.path.exists(pdf_path):
             raise HTTPException(status_code=500, detail="Failed to generate PDF")
         
+        # Also save copies in the root directory for easy access
+        import shutil
+        root_tex_path = "resume.tex"
+        root_pdf_path = "resume.pdf"
+        
+        if os.path.exists(latex_path):
+            shutil.copy2(latex_path, root_tex_path)
+            print(f"Copied LaTeX file to: {root_tex_path}")
+        
+        if os.path.exists(pdf_path):
+            shutil.copy2(pdf_path, root_pdf_path)
+            print(f"Copied PDF file to: {root_pdf_path}")
+        
         return GenerateResumeResponse(
             message="Resume generated successfully from uploaded YAML",
-            filename=f"{filename}.pdf",
-            download_url=f"/download/{filename}.pdf"
+            filename="resume.pdf",
+            download_url="/download/resume.pdf"
         )
         
     except Exception as e:
