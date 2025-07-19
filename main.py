@@ -261,6 +261,36 @@ async def generate_resume(resume_data: ResumeData):
                 shutil.copy2(pdf_path, root_pdf_path)
                 print(f"Copied PDF file to: {root_pdf_path}")
         
+        # Also copy files to temp directory for download endpoint compatibility
+        temp_tex_path = os.path.join(TEMP_DIR, "resume.tex")
+        temp_pdf_path = os.path.join(TEMP_DIR, "resume.pdf")
+        
+        if os.path.exists(latex_path):
+            # Only copy if source and destination are different
+            try:
+                if not os.path.samefile(latex_path, temp_tex_path):
+                    shutil.copy2(latex_path, temp_tex_path)
+                    print(f"Copied LaTeX file to temp directory: {temp_tex_path}")
+                else:
+                    print(f"LaTeX file already at destination: {temp_tex_path}")
+            except FileNotFoundError:
+                # If temp_tex_path doesn't exist yet, it's safe to copy
+                shutil.copy2(latex_path, temp_tex_path)
+                print(f"Copied LaTeX file to temp directory: {temp_tex_path}")
+        
+        if os.path.exists(pdf_path):
+            # Only copy if source and destination are different
+            try:
+                if not os.path.samefile(pdf_path, temp_pdf_path):
+                    shutil.copy2(pdf_path, temp_pdf_path)
+                    print(f"Copied PDF file to temp directory: {temp_pdf_path}")
+                else:
+                    print(f"PDF file already at destination: {temp_pdf_path}")
+            except FileNotFoundError:
+                # If temp_pdf_path doesn't exist yet, it's safe to copy
+                shutil.copy2(pdf_path, temp_pdf_path)
+                print(f"Copied PDF file to temp directory: {temp_pdf_path}")
+        
         return GenerateResumeResponse(
             message="Resume generated successfully",
             filename="resume.pdf",
@@ -369,6 +399,36 @@ async def upload_yaml_resume(file: UploadFile = File(...)):
                 # If root_pdf_path doesn't exist yet, it's safe to copy
                 shutil.copy2(pdf_path, root_pdf_path)
                 print(f"Copied PDF file to: {root_pdf_path}")
+        
+        # Also copy files to temp directory for download endpoint compatibility
+        temp_tex_path = os.path.join(TEMP_DIR, "resume.tex")
+        temp_pdf_path = os.path.join(TEMP_DIR, "resume.pdf")
+        
+        if os.path.exists(latex_path):
+            # Only copy if source and destination are different
+            try:
+                if not os.path.samefile(latex_path, temp_tex_path):
+                    shutil.copy2(latex_path, temp_tex_path)
+                    print(f"Copied LaTeX file to temp directory: {temp_tex_path}")
+                else:
+                    print(f"LaTeX file already at destination: {temp_tex_path}")
+            except FileNotFoundError:
+                # If temp_tex_path doesn't exist yet, it's safe to copy
+                shutil.copy2(latex_path, temp_tex_path)
+                print(f"Copied LaTeX file to temp directory: {temp_tex_path}")
+        
+        if os.path.exists(pdf_path):
+            # Only copy if source and destination are different
+            try:
+                if not os.path.samefile(pdf_path, temp_pdf_path):
+                    shutil.copy2(pdf_path, temp_pdf_path)
+                    print(f"Copied PDF file to temp directory: {temp_pdf_path}")
+                else:
+                    print(f"PDF file already at destination: {temp_pdf_path}")
+            except FileNotFoundError:
+                # If temp_pdf_path doesn't exist yet, it's safe to copy
+                shutil.copy2(pdf_path, temp_pdf_path)
+                print(f"Copied PDF file to temp directory: {temp_pdf_path}")
         
         return GenerateResumeResponse(
             message="Resume generated successfully from uploaded YAML",
