@@ -237,19 +237,29 @@ async def generate_resume(resume_data: ResumeData):
         
         if os.path.exists(latex_path):
             # Only copy if source and destination are different
-            if os.path.abspath(latex_path) != os.path.abspath(root_tex_path):
+            try:
+                if not os.path.samefile(latex_path, root_tex_path):
+                    shutil.copy2(latex_path, root_tex_path)
+                    print(f"Copied LaTeX file to: {root_tex_path}")
+                else:
+                    print(f"LaTeX file already at destination: {root_tex_path}")
+            except FileNotFoundError:
+                # If root_tex_path doesn't exist yet, it's safe to copy
                 shutil.copy2(latex_path, root_tex_path)
                 print(f"Copied LaTeX file to: {root_tex_path}")
-            else:
-                print(f"LaTeX file already at destination: {root_tex_path}")
         
         if os.path.exists(pdf_path):
             # Only copy if source and destination are different
-            if os.path.abspath(pdf_path) != os.path.abspath(root_pdf_path):
+            try:
+                if not os.path.samefile(pdf_path, root_pdf_path):
+                    shutil.copy2(pdf_path, root_pdf_path)
+                    print(f"Copied PDF file to: {root_pdf_path}")
+                else:
+                    print(f"PDF file already at destination: {root_pdf_path}")
+            except FileNotFoundError:
+                # If root_pdf_path doesn't exist yet, it's safe to copy
                 shutil.copy2(pdf_path, root_pdf_path)
                 print(f"Copied PDF file to: {root_pdf_path}")
-            else:
-                print(f"PDF file already at destination: {root_pdf_path}")
         
         return GenerateResumeResponse(
             message="Resume generated successfully",
@@ -276,7 +286,20 @@ async def upload_yaml_resume(file: UploadFile = File(...)):
         with open(upload_path, "wb") as buffer:
             content = await file.read()
             buffer.write(content)
-        print(f"Debug: File saved successfully")
+        print(f"Debug: File saved successfully, size: {len(content)} bytes")
+        
+        # Overwrite the project root resume.yaml with the uploaded file
+        import shutil
+        print(f"Debug: About to copy {upload_path} to resume.yaml")
+        print(f"Debug: upload_path exists: {os.path.exists(upload_path)}")
+        print(f"Debug: resume.yaml exists before copy: {os.path.exists('resume.yaml')}")
+        try:
+            shutil.copy2(upload_path, "resume.yaml")
+            print("Uploaded YAML has replaced the existing resume.yaml in the project root.")
+            print(f"Debug: resume.yaml exists after copy: {os.path.exists('resume.yaml')}")
+        except Exception as e:
+            print(f"Debug: Error copying file: {e}")
+            raise
         
         # Load data from YAML file
         print(f"Debug: About to call load_resume_data with upload_path={upload_path}")
@@ -323,23 +346,29 @@ async def upload_yaml_resume(file: UploadFile = File(...)):
         
         if os.path.exists(latex_path):
             # Only copy if source and destination are different
-            if os.path.abspath(latex_path) != os.path.abspath(root_tex_path):
+            try:
+                if not os.path.samefile(latex_path, root_tex_path):
+                    shutil.copy2(latex_path, root_tex_path)
+                    print(f"Copied LaTeX file to: {root_tex_path}")
+                else:
+                    print(f"LaTeX file already at destination: {root_tex_path}")
+            except FileNotFoundError:
+                # If root_tex_path doesn't exist yet, it's safe to copy
                 shutil.copy2(latex_path, root_tex_path)
                 print(f"Copied LaTeX file to: {root_tex_path}")
-            else:
-                print(f"LaTeX file already at destination: {root_tex_path}")
         
         if os.path.exists(pdf_path):
             # Only copy if source and destination are different
-            pdf_abs = os.path.abspath(pdf_path)
-            root_pdf_abs = os.path.abspath(root_pdf_path)
-            print(f"Debug: pdf_path={pdf_path}, pdf_abs={pdf_abs}")
-            print(f"Debug: root_pdf_path={root_pdf_path}, root_pdf_abs={root_pdf_abs}")
-            if pdf_abs != root_pdf_abs:
+            try:
+                if not os.path.samefile(pdf_path, root_pdf_path):
+                    shutil.copy2(pdf_path, root_pdf_path)
+                    print(f"Copied PDF file to: {root_pdf_path}")
+                else:
+                    print(f"PDF file already at destination: {root_pdf_path}")
+            except FileNotFoundError:
+                # If root_pdf_path doesn't exist yet, it's safe to copy
                 shutil.copy2(pdf_path, root_pdf_path)
                 print(f"Copied PDF file to: {root_pdf_path}")
-            else:
-                print(f"PDF file already at destination: {root_pdf_path}")
         
         return GenerateResumeResponse(
             message="Resume generated successfully from uploaded YAML",
@@ -348,6 +377,9 @@ async def upload_yaml_resume(file: UploadFile = File(...)):
         )
         
     except Exception as e:
+        import traceback
+        error_details = f"Error processing YAML file: {str(e)}\nTraceback: {traceback.format_exc()}"
+        print(f"Debug: Exception details: {error_details}")
         raise HTTPException(status_code=500, detail=f"Error processing YAML file: {str(e)}")
 
 @app.get("/download/{filename}")
@@ -459,19 +491,29 @@ async def generate_from_existing_yaml():
         
         if os.path.exists(latex_path):
             # Only copy if source and destination are different
-            if os.path.abspath(latex_path) != os.path.abspath(temp_tex_path):
+            try:
+                if not os.path.samefile(latex_path, temp_tex_path):
+                    shutil.copy2(latex_path, temp_tex_path)
+                    print(f"Copied LaTeX file to temp directory: {temp_tex_path}")
+                else:
+                    print(f"LaTeX file already at destination: {temp_tex_path}")
+            except FileNotFoundError:
+                # If temp_tex_path doesn't exist yet, it's safe to copy
                 shutil.copy2(latex_path, temp_tex_path)
                 print(f"Copied LaTeX file to temp directory: {temp_tex_path}")
-            else:
-                print(f"LaTeX file already at destination: {temp_tex_path}")
         
         if os.path.exists(pdf_path):
             # Only copy if source and destination are different
-            if os.path.abspath(pdf_path) != os.path.abspath(temp_pdf_path):
+            try:
+                if not os.path.samefile(pdf_path, temp_pdf_path):
+                    shutil.copy2(pdf_path, temp_pdf_path)
+                    print(f"Copied PDF file to temp directory: {temp_pdf_path}")
+                else:
+                    print(f"PDF file already at destination: {temp_pdf_path}")
+            except FileNotFoundError:
+                # If temp_pdf_path doesn't exist yet, it's safe to copy
                 shutil.copy2(pdf_path, temp_pdf_path)
                 print(f"Copied PDF file to temp directory: {temp_pdf_path}")
-            else:
-                print(f"PDF file already at destination: {temp_pdf_path}")
         
         return GenerateResumeResponse(
             message="Resume generated successfully from existing resume.yaml",
