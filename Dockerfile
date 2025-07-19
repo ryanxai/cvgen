@@ -16,9 +16,8 @@ RUN apt-get update && apt-get install -y \
 # Create app directory
 WORKDIR /app
 
-# Create output directory
-RUN mkdir -p /app/output
-ENV OUTPUT_DIR=/app/output
+# Set output directory environment variable (matching docker-compose setting)
+ENV OUTPUT_DIR=/app
 
 # Configure LaTeX to allow writing to directories
 RUN mkdir -p /root/texmf/web2c && \
@@ -28,7 +27,12 @@ RUN mkdir -p /root/texmf/web2c && \
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Copy app files
-COPY generate_resume.py template.tex ./
+# Copy all application files
+COPY generate_resume.py main.py template.tex resume.yaml ./
 
-# No default entrypoint/cmd - will be provided by docker-compose 
+# Expose FastAPI port
+EXPOSE 8000
+
+# Default command to run the FastAPI server
+# Can be overridden with: docker run <image> python3 generate_resume.py
+CMD ["python3", "main.py"] 
