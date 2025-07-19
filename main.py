@@ -37,12 +37,18 @@ app = FastAPI(
     openapi_url="/openapi.json"  # Explicitly set OpenAPI schema URL
 )
 
-# Add CORS middleware to ensure docs can load properly
+# Add CORS middleware to enable frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your domain
+    allow_origins=[
+        "http://localhost:3000",  # Local development
+        "https://localhost:3000",  # Local development with HTTPS
+        "https://*.vercel.app",    # Vercel preview deployments
+        "https://resume-builder-ui.vercel.app",  # Production Vercel domain
+        "*"  # Allow all for development - restrict in production
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
