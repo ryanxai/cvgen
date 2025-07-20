@@ -8,7 +8,6 @@ from typing import List, Optional, Dict, Any
 import os
 import tempfile
 import uuid
-import yaml
 import json
 from datetime import datetime
 
@@ -24,13 +23,14 @@ from generate_resume import (
     format_education,
     format_awards,
     format_certifications,
-    format_publications
+    format_publications,
+    cleanup_auxiliary_files
 )
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="YAML to PDF Resume Builder API",
-    description="A FastAPI service to generate professional PDF resumes from structured data",
+    title="JSON to PDF Resume Builder API",
+    description="A FastAPI service to generate professional PDF resumes from structured JSON data",
     version="1.0.0",
     docs_url="/docs",  # Explicitly set docs URL
     redoc_url="/redoc",  # Explicitly set redoc URL
@@ -106,7 +106,7 @@ class Publication(BaseModel):
     authors: str
     title: str
     venue: str
-    year: str
+    year: int
     url: str
 
 class ResumeData(BaseModel):
@@ -133,7 +133,7 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 async def root():
     """Root endpoint with API information"""
     return JSONResponse(content={
-        "message": "YAML to PDF Resume Builder API",
+        "message": "JSON to PDF Resume Builder API",
         "version": "1.0.0",
         "status": "running",
         "documentation": {
@@ -144,8 +144,8 @@ async def root():
         "endpoints": {
             "health_check": "GET /health",
             "generate_resume": "POST /generate-resume",
-            "upload_yaml": "POST /upload-yaml", 
-            "generate_from_yaml": "POST /generate-from-yaml",
+            "upload_json": "POST /upload-json", 
+            "generate_from_json": "POST /generate-from-json",
             "download_file": "GET /download/{filename}",
             "get_template": "GET /template",
             "get_sample_data": "GET /sample-data",
@@ -171,7 +171,7 @@ async def health_check():
             "environment": {
                 "temp_dir_exists": os.path.exists(TEMP_DIR),
                 "template_file_exists": os.path.exists("template.tex"),
-                "resume_yaml_exists": os.path.exists("resume.yaml")
+                "resume_json_exists": os.path.exists("resume.json")
             }
         }
         
@@ -300,17 +300,17 @@ async def generate_resume(resume_data: ResumeData):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating resume: {str(e)}")
 
-@app.post("/upload-yaml", response_model=GenerateResumeResponse)
-async def upload_yaml_resume(file: UploadFile = File(...)):
+@app.post("/upload-json", response_model=GenerateResumeResponse)
+async def upload_json_resume(file: UploadFile = File(...)):
     """
-    Upload a YAML file and generate a PDF resume
+    Upload a JSON file and generate a PDF resume
     """
     try:
-        if not file.filename.endswith(('.yaml', '.yml')):
-            raise HTTPException(status_code=400, detail="File must be a YAML file (.yaml or .yml)")
+        if not file.filename.endswith('.json'):
+            raise HTTPException(status_code=400, detail="File must be a JSON file (.json)")
         
         # Save uploaded file temporarily
-        upload_path = os.path.join(TEMP_DIR, f"upload_{uuid.uuid4()}.yaml")
+        upload_path = os.path.join(TEMP_DIR, f"upload_{uuid.uuid4()}.json")
         print(f"Debug: About to save uploaded file to {upload_path}")
         
         with open(upload_path, "wb") as buffer:
@@ -318,20 +318,20 @@ async def upload_yaml_resume(file: UploadFile = File(...)):
             buffer.write(content)
         print(f"Debug: File saved successfully, size: {len(content)} bytes")
         
-        # Overwrite the project root resume.yaml with the uploaded file
+        # Overwrite the project root resume.json with the uploaded file
         import shutil
-        print(f"Debug: About to copy {upload_path} to resume.yaml")
+        print(f"Debug: About to copy {upload_path} to resume.json")
         print(f"Debug: upload_path exists: {os.path.exists(upload_path)}")
-        print(f"Debug: resume.yaml exists before copy: {os.path.exists('resume.yaml')}")
+        print(f"Debug: resume.json exists before copy: {os.path.exists('resume.json')}")
         try:
-            shutil.copy2(upload_path, "resume.yaml")
-            print("Uploaded YAML has replaced the existing resume.yaml in the project root.")
-            print(f"Debug: resume.yaml exists after copy: {os.path.exists('resume.yaml')}")
+            shutil.copy2(upload_path, "resume.json")
+            print("Uploaded JSON has replaced the existing resume.json in the project root.")
+            print(f"Debug: resume.json exists after copy: {os.path.exists('resume.json')}")
         except Exception as e:
             print(f"Debug: Error copying file: {e}")
             raise
         
-        # Load data from YAML file
+        # Load data from JSON file
         print(f"Debug: About to call load_resume_data with upload_path={upload_path}")
         data_dict = load_resume_data(upload_path)
         print(f"Debug: load_resume_data completed successfully")
@@ -362,6 +362,20 @@ async def upload_yaml_resume(file: UploadFile = File(...)):
         
         # Restore original output directory
         os.environ['OUTPUT_DIR'] = original_output_dir
+        
+        # Clean up auxiliary files after restoring output directory
+        cleanup_auxiliary_files()
+        
+        # Also directly clean up auxiliary files from current directory
+        aux_extensions = ['.aux', '.log', '.out', '.fdb_latexmk', '.fls', '.synctex.gz', '.toc', '.nav', '.snm', '.vrb']
+        for ext in aux_extensions:
+            aux_file = f"resume{ext}"
+            if os.path.exists(aux_file):
+                try:
+                    os.remove(aux_file)
+                    print(f"Directly cleaned up: {aux_file}")
+                except Exception as e:
+                    print(f"Could not remove {aux_file}: {e}")
         
         # Clean up uploaded YAML file
         os.remove(upload_path)
@@ -431,16 +445,16 @@ async def upload_yaml_resume(file: UploadFile = File(...)):
                 print(f"Copied PDF file to temp directory: {temp_pdf_path}")
         
         return GenerateResumeResponse(
-            message="Resume generated successfully from uploaded YAML",
+            message="Resume generated successfully from uploaded JSON",
             filename="resume.pdf",
             download_url="/download/resume.pdf"
         )
         
     except Exception as e:
         import traceback
-        error_details = f"Error processing YAML file: {str(e)}\nTraceback: {traceback.format_exc()}"
+        error_details = f"Error processing JSON file: {str(e)}\nTraceback: {traceback.format_exc()}"
         print(f"Debug: Exception details: {error_details}")
-        raise HTTPException(status_code=500, detail=f"Error processing YAML file: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing JSON file: {str(e)}")
 
 @app.get("/download/{filename}")
 async def download_file(filename: str):
@@ -480,7 +494,7 @@ async def get_sample_data():
     Get sample resume data structure for reference
     """
     try:
-        sample_data = load_resume_data('resume.yaml')
+        sample_data = load_resume_data('resume.json')
         return {
             "sample_data": sample_data,
             "message": "Sample resume data structure"
@@ -492,40 +506,63 @@ async def get_sample_data():
 @app.delete("/cleanup")
 async def cleanup_temp_files():
     """
-    Clean up temporary files (development endpoint)
+    Clean up temporary files and LaTeX auxiliary files (development endpoint)
     """
     try:
         files_removed = 0
+        
+        # Clean up temp directory
         for filename in os.listdir(TEMP_DIR):
             file_path = os.path.join(TEMP_DIR, filename)
             if os.path.isfile(file_path):
                 os.remove(file_path)
                 files_removed += 1
         
+        # Clean up LaTeX auxiliary files from current directory
+        aux_extensions = [
+            '.aux', '.log', '.out', '.fdb_latexmk', '.fls', '.synctex.gz',
+            '.toc', '.nav', '.snm', '.vrb'
+        ]
+        
+        for ext in aux_extensions:
+            # Clean up resume.* files
+            resume_aux_file = f"resume{ext}"
+            if os.path.exists(resume_aux_file):
+                os.remove(resume_aux_file)
+                files_removed += 1
+                print(f"Cleaned up: {resume_aux_file}")
+            
+            # Clean up template.* files
+            template_aux_file = f"template{ext}"
+            if os.path.exists(template_aux_file):
+                os.remove(template_aux_file)
+                files_removed += 1
+                print(f"Cleaned up: {template_aux_file}")
+        
         return {
-            "message": f"Cleaned up {files_removed} temporary files",
+            "message": f"Cleaned up {files_removed} temporary and auxiliary files",
             "status": "success"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error cleaning up files: {str(e)}")
 
-@app.post("/generate-from-yaml", response_model=GenerateResumeResponse)
-async def generate_from_existing_yaml():
+@app.post("/generate-from-json", response_model=GenerateResumeResponse)
+async def generate_from_existing_json():
     """
-    Generate resume.tex and resume.pdf from the existing resume.yaml file in the project directory
+    Generate resume.tex and resume.pdf from the existing resume.json file in the project directory
     """
     try:
-        yaml_file_path = "resume.yaml"
+        json_file_path = "resume.json"
         
-        # Check if resume.yaml exists
-        if not os.path.exists(yaml_file_path):
+        # Check if resume.json exists
+        if not os.path.exists(json_file_path):
             raise HTTPException(
                 status_code=404, 
-                detail=f"resume.yaml file not found in project directory. Please ensure resume.yaml exists in the project root."
+                detail=f"resume.json file not found in project directory. Please ensure resume.json exists in the project root."
             )
         
-        # Load data from existing YAML file
-        data_dict = load_resume_data(yaml_file_path)
+        # Load data from existing JSON file
+        data_dict = load_resume_data(json_file_path)
         
         # Generate LaTeX file directly in the project root
         latex_path = "resume.tex"
@@ -537,6 +574,9 @@ async def generate_from_existing_yaml():
         os.environ['OUTPUT_DIR'] = '.'
         
         pdf_path = compile_latex(latex_path, data=data_dict)
+        
+        # Clean up auxiliary files
+        cleanup_auxiliary_files()
         
         # Restore original output directory
         os.environ['OUTPUT_DIR'] = original_output_dir
@@ -576,7 +616,7 @@ async def generate_from_existing_yaml():
                 print(f"Copied PDF file to temp directory: {temp_pdf_path}")
         
         return GenerateResumeResponse(
-            message="Resume generated successfully from existing resume.yaml",
+            message="Resume generated successfully from existing resume.json",
             filename="resume.pdf",
             download_url="/download/resume.pdf"
         )
@@ -584,7 +624,7 @@ async def generate_from_existing_yaml():
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=f"File not found: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error generating resume from YAML: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating resume from JSON: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

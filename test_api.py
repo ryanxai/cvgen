@@ -112,14 +112,14 @@ def test_generate_resume_json(sample_data: Dict[Any, Any] = None):
     
     print("-" * 50)
 
-def test_upload_yaml():
-    """Test uploading YAML file"""
-    print("Testing YAML file upload...")
+def test_upload_json():
+    """Test uploading JSON file"""
+    print("Testing JSON file upload...")
     
     try:
-        with open('resume.yaml', 'rb') as f:
-            files = {'file': ('resume.yaml', f, 'application/x-yaml')}
-            response = requests.post(f"{API_BASE}/upload-yaml", files=files)
+        with open('resume.json', 'rb') as f:
+            files = {'file': ('resume.json', f, 'application/json')}
+            response = requests.post(f"{API_BASE}/upload-json", files=files)
         
         if response.status_code == 200:
             result = response.json()
@@ -137,19 +137,19 @@ def test_upload_yaml():
             else:
                 print(f"Failed to download PDF: {download_response.status_code}")
         else:
-            print(f"Failed to upload YAML: {response.status_code}")
+            print(f"Failed to upload JSON: {response.status_code}")
             print(f"Error: {response.text}")
             
     except FileNotFoundError:
-        print("resume.yaml file not found. Skipping YAML upload test.")
+        print("resume.json file not found. Skipping JSON upload test.")
     
     print("-" * 50)
 
-def test_generate_from_yaml():
-    """Test generating resume from existing resume.yaml file"""
-    print("Testing resume generation from existing resume.yaml...")
+def test_generate_from_json():
+    """Test generating resume from existing resume.json file"""
+    print("Testing resume generation from existing resume.json...")
     
-    response = requests.post(f"{API_BASE}/generate-from-yaml")
+    response = requests.post(f"{API_BASE}/generate-from-json")
     
     if response.status_code == 200:
         result = response.json()
@@ -161,16 +161,16 @@ def test_generate_from_yaml():
         # Test downloading the file
         download_response = requests.get(f"{API_BASE}{result['download_url']}")
         if download_response.status_code == 200:
-            with open(f"existing_yaml_resume.pdf", "wb") as f:
+            with open(f"existing_json_resume.pdf", "wb") as f:
                 f.write(download_response.content)
-            print(f"PDF downloaded successfully as: existing_yaml_resume.pdf")
+            print(f"PDF downloaded successfully as: existing_json_resume.pdf")
         else:
             print(f"Failed to download PDF: {download_response.status_code}")
     else:
-        print(f"Failed to generate resume from existing YAML: {response.status_code}")
+        print(f"Failed to generate resume from existing JSON: {response.status_code}")
         print(f"Error: {response.text}")
         if response.status_code == 404:
-            print("Note: Make sure resume.yaml exists in the project directory")
+            print("Note: Make sure resume.json exists in the project directory")
     
     print("-" * 50)
 
@@ -205,11 +205,11 @@ def main():
         # Test resume generation
         test_generate_resume_json(sample_data)
         
-        # Test YAML upload
-        test_upload_yaml()
+        # Test JSON upload
+        test_upload_json()
         
-        # Test generating from existing YAML
-        test_generate_from_yaml()
+        # Test generating from existing JSON
+        test_generate_from_json()
         
         # Test template retrieval
         test_get_template()

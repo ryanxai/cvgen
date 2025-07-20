@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import yaml
+import json
 import re
 import os
 import subprocess
@@ -9,24 +9,16 @@ from datetime import datetime
 # Define output directory (will be used in Docker)
 OUTPUT_DIR = os.environ.get('OUTPUT_DIR', '.')
 
-def load_resume_data(file_path='resume.yaml'):
-    """Load YAML data from resume.yaml file"""
-    with open(file_path, 'r') as file:
-        content = file.read()
-    
-    # Extract YAML content between --- markers
-    yaml_match = re.search(r'^---\n(.*?)\n---', content, re.DOTALL)
-    if not yaml_match:
-        try:
-            # Try to load as pure YAML without frontmatter markers
-            data = yaml.safe_load(content)
-            return data
-        except:
-            raise ValueError(f"Could not parse YAML content in {file_path}")
-    
-    yaml_content = yaml_match.group(1)
-    data = yaml.safe_load(yaml_content)
-    return data
+def load_resume_data(file_path='resume.json'):
+    """Load JSON data from resume.json file"""
+    try:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        return data
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Could not parse JSON content in {file_path}: {e}")
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File {file_path} not found")
 
 def escape_latex(text):
     """Escape special LaTeX characters in text"""
@@ -319,13 +311,21 @@ def compile_latex(latex_file, output_format="pdf", data=None):
             aux_files = [
                 os.path.join(output_dir, f"{output_name}.aux"),
                 os.path.join(output_dir, f"{output_name}.log"),
-                os.path.join(output_dir, f"{output_name}.out")
+                os.path.join(output_dir, f"{output_name}.out"),
+                os.path.join(output_dir, f"{output_name}.fdb_latexmk"),
+                os.path.join(output_dir, f"{output_name}.fls"),
+                os.path.join(output_dir, f"{output_name}.synctex.gz"),
+                os.path.join(output_dir, f"{output_name}.toc"),
+                os.path.join(output_dir, f"{output_name}.nav"),
+                os.path.join(output_dir, f"{output_name}.snm"),
+                os.path.join(output_dir, f"{output_name}.vrb")
             ]
             
             for file in aux_files:
                 if os.path.exists(file):
                     try:
                         os.remove(file)
+                        print(f"Cleaned up: {os.path.basename(file)}")
                     except Exception as e:
                         print(f"Warning: Could not remove {file}: {e}")
     
@@ -335,17 +335,82 @@ def compile_latex(latex_file, output_format="pdf", data=None):
         traceback.print_exc()
         return None
 
+def cleanup_auxiliary_files(output_dir=None, current_dir=True):
+    """
+    Clean up LaTeX auxiliary files from specified directories
+    
+    Args:
+        output_dir: Directory to clean up (defaults to OUTPUT_DIR)
+        current_dir: Whether to also clean up current directory
+    """
+    if output_dir is None:
+        output_dir = OUTPUT_DIR
+    
+    aux_extensions = [
+        '.aux', '.log', '.out', '.fdb_latexmk', '.fls', '.synctex.gz',
+        '.toc', '.nav', '.snm', '.vrb'
+    ]
+    
+    files_cleaned = 0
+    
+    # Clean up files in output directory
+    for ext in aux_extensions:
+        # Clean up resume.* files
+        resume_aux_file = os.path.join(output_dir, f"resume{ext}")
+        if os.path.exists(resume_aux_file):
+            try:
+                os.remove(resume_aux_file)
+                print(f"Cleaned up: {os.path.basename(resume_aux_file)}")
+                files_cleaned += 1
+            except Exception as e:
+                print(f"Warning: Could not remove {resume_aux_file}: {e}")
+        
+        # Clean up template.* files
+        template_aux_file = os.path.join(output_dir, f"template{ext}")
+        if os.path.exists(template_aux_file):
+            try:
+                os.remove(template_aux_file)
+                print(f"Cleaned up: {os.path.basename(template_aux_file)}")
+                files_cleaned += 1
+            except Exception as e:
+                print(f"Warning: Could not remove {template_aux_file}: {e}")
+    
+    # Also clean up current directory if requested
+    if current_dir and output_dir != '.':
+        for ext in aux_extensions:
+            # Clean up resume.* files in current directory
+            resume_aux_file = f"resume{ext}"
+            if os.path.exists(resume_aux_file):
+                try:
+                    os.remove(resume_aux_file)
+                    print(f"Cleaned up from current directory: {resume_aux_file}")
+                    files_cleaned += 1
+                except Exception as e:
+                    print(f"Warning: Could not remove {resume_aux_file}: {e}")
+            
+            # Clean up template.* files in current directory
+            template_aux_file = f"template{ext}"
+            if os.path.exists(template_aux_file):
+                try:
+                    os.remove(template_aux_file)
+                    print(f"Cleaned up from current directory: {template_aux_file}")
+                    files_cleaned += 1
+                except Exception as e:
+                    print(f"Warning: Could not remove {template_aux_file}: {e}")
+    
+    return files_cleaned
+
 def main():
     """Main function to generate resume"""
     try:
-        # Check if a YAML file was specified as a command line argument
-        yaml_file = 'resume.yaml'
+        # Check if a JSON file was specified as a command line argument
+        json_file = 'resume.json'
         if len(sys.argv) > 1 and not sys.argv[1].startswith('-'):
-            yaml_file = sys.argv[1]
-            print(f"Using YAML file: {yaml_file}")
+            json_file = sys.argv[1]
+            print(f"Using JSON file: {json_file}")
         
-        # Load data from YAML file
-        data = load_resume_data(yaml_file)
+        # Load data from JSON file
+        data = load_resume_data(json_file)
         
         # Generate LaTeX file from template and data (with firstname_lastname)
         latex_file = generate_latex_resume(data)
@@ -356,31 +421,9 @@ def main():
         if pdf_file:
             print(f"Generated PDF file: {pdf_file}")
             
-            # Clean up auxiliary files in the current directory
-            template_files = [
-                "template.aux", "template.log", "template.out", 
-                "template.pdf", "template.fdb_latexmk", "template.fls", "template.synctex.gz"
-            ]
-            
-            # Add the resume auxiliary files to clean up list
-            resume_files = [
-                "resume.aux", 
-                "resume.log",
-                "resume.out"
-                # Don't remove the .tex file since we want to keep it
-            ]
-            
-            # Combine all files to clean up
-            files_to_clean = template_files + resume_files
-            
-            # Remove all auxiliary files
-            for file in files_to_clean:
-                file_path = os.path.join(OUTPUT_DIR, file)
-                if os.path.exists(file_path):
-                    try:
-                        os.remove(file_path)
-                    except Exception as e:
-                        print(f"Could not remove {file_path}: {e}")
+            # Clean up auxiliary files using the new function
+            files_cleaned = cleanup_auxiliary_files()
+            print(f"Cleaned up {files_cleaned} auxiliary files")
                         
             print(f"\nSuccess! Your resume has been generated at: {pdf_file}")
         else:
