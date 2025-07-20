@@ -1,10 +1,10 @@
-# YAML to PDF Resume Builder
+# CV Generator
 
 ![Resume Preview](docs/resume_preview_top_half.png)
 
 ## Overview
 
-This project allows you to maintain your resume content in an easy-to-edit YAML format while generating a professionally styled PDF using Python and LaTeX. You can run it either as a **command-line tool**, a **FastAPI web service**, or with **Docker**.
+This project allows you to maintain your resume content in an easy-to-edit JSON format while generating a professionally styled PDF using Python and LaTeX. You can run it either as a **command-line tool**, a **FastAPI web service**, or with **Docker**.
 
 ## Usage Options
 
@@ -106,7 +106,6 @@ python3 test_api.py
 
 #### Requirements
 - Python 3.6+
-- PyYAML (`pip install pyyaml`)
 - LaTeX distribution (MacTeX, MiKTeX, or TeXLive)
 
 #### Quick Start
@@ -192,7 +191,7 @@ with open('resume.pdf', 'wb') as f:
 const FormData = require('form-data');
 const fs = require('fs');
 
-// Upload YAML file
+// Upload JSON file
 const form = new FormData();
 form.append('file', fs.createReadStream('resume.json'));
 
@@ -220,7 +219,7 @@ python3 test_api.py
 
 ### Project Structure
 ```
-yaml2pdf-resume-builder/
+cvgen/
 ├── main.py              # FastAPI application
 ├── generate_resume.py   # Core resume generation logic
 ├── test_api.py         # API test script
