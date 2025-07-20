@@ -37,8 +37,8 @@ The API will be available at `http://localhost:8000`
 - **GET `/`** - API information and available endpoints
 - **GET `/health`** - Health check endpoint
 - **POST `/generate-resume`** - Generate PDF from JSON resume data
-- **POST `/upload-yaml`** - Upload a YAML file and generate PDF
-- **POST `/generate-from-yaml`** - Generate resume.tex and resume.pdf from existing resume.yaml
+- **POST `/upload-json`** - Upload a JSON file and generate PDF
+- **POST `/generate-from-json`** - Generate resume.tex and resume.pdf from existing resume.json
 - **GET `/download/{filename}`** - Download generated PDF files
 - **GET `/sample-data`** - Get sample resume data structure
 - **GET `/template`** - Get the LaTeX template content
@@ -79,15 +79,15 @@ curl -X POST "http://localhost:8000/generate-resume" \
   }'
 ```
 
-**Upload YAML file:**
+**Upload JSON file:**
 ```bash
-curl -X POST "http://localhost:8000/upload-yaml" \
-  -F "file=@resume.yaml"
+curl -X POST "http://localhost:8000/upload-json" \
+  -F "file=@resume.json"
 ```
 
-**Generate from existing resume.yaml:**
+**Generate from existing resume.json:**
 ```bash
-curl -X POST "http://localhost:8000/generate-from-yaml"
+curl -X POST "http://localhost:8000/generate-from-json"
 ```
 
 **Download generated PDF:**
@@ -148,22 +148,22 @@ docker run --rm -v $(pwd):/app resume-generator python3 generate_resume.py
 
 #### Important Note About Docker Volume Mounting
 
-When using the `/generate-from-yaml` endpoint, you **must** use volume mounting (`-v $(pwd):/app`) to make the generated `resume.tex` and `resume.pdf` files accessible in your host project directory. Without volume mounting, the files will be generated inside the container but won't be accessible from your host system.
+When using the `/generate-from-json` endpoint, you **must** use volume mounting (`-v $(pwd):/app`) to make the generated `resume.tex` and `resume.pdf` files accessible in your host project directory. Without volume mounting, the files will be generated inside the container but won't be accessible from your host system.
 
 ## How It Works
 
-1. Your resume content is stored in `resume.yaml` as structured YAML data
+1. Your resume content is stored in `resume.json` as structured JSON data
 2. The LaTeX template (`template.tex`) defines the styling and layout
 3. The Python script (`generate_resume.py`) combines your data with the template
 4. The FastAPI service (`main.py`) provides web endpoints for the same functionality
 5. The endpoints can generate files either with personalized names or as standard `resume.tex` and `resume.pdf`
-   - `/generate-resume` and `/upload-yaml`: Generate files with personalized names
-   - `/generate-from-yaml`: Generate standard `resume.tex` and `resume.pdf` from existing `resume.yaml`
+   - `/generate-resume` and `/upload-json`: Generate files with personalized names
+   - `/generate-from-json`: Generate standard `resume.tex` and `resume.pdf` from existing `resume.json`
 
 ## Creating Your Resume
 
 1. **Edit Your Resume Data**:
-   - Update `resume.yaml` with your personal information
+   - Update `resume.json` with your personal information
    - Follow the existing structure for experience, education, etc.
 
 2. **Customizing the Template** (Optional):
@@ -194,9 +194,9 @@ const fs = require('fs');
 
 // Upload YAML file
 const form = new FormData();
-form.append('file', fs.createReadStream('resume.yaml'));
+form.append('file', fs.createReadStream('resume.json'));
 
-fetch('http://localhost:8000/upload-yaml', {
+fetch('http://localhost:8000/upload-json', {
   method: 'POST',
   body: form
 })
@@ -225,7 +225,7 @@ yaml2pdf-resume-builder/
 ├── generate_resume.py   # Core resume generation logic
 ├── test_api.py         # API test script
 ├── template.tex        # LaTeX template
-├── resume.yaml         # Sample resume data
+├── resume.json         # Sample resume data
 ├── requirements.txt    # Python dependencies
 ├── Dockerfile         # Docker configuration
 └── README.md          # This file
