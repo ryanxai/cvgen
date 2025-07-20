@@ -137,9 +137,9 @@ async def root():
         "version": "1.0.0",
         "status": "running",
         "documentation": {
-            "swagger_ui": "https://yaml2pdf-resume-builder.fly.dev/docs",
-            "redoc": "https://yaml2pdf-resume-builder.fly.dev/redoc",
-            "openapi_schema": "https://yaml2pdf-resume-builder.fly.dev/openapi.json"
+            "swagger_ui": "https://cvgen.fly.dev/docs",
+            "redoc": "https://cvgen.fly.dev/redoc",
+            "openapi_schema": "https://cvgen.fly.dev/openapi.json"
         },
         "endpoints": {
             "health_check": "GET /health",
@@ -377,7 +377,7 @@ async def upload_json_resume(file: UploadFile = File(...)):
                 except Exception as e:
                     print(f"Could not remove {aux_file}: {e}")
         
-        # Clean up uploaded YAML file
+        # Clean up uploaded JSON file
         os.remove(upload_path)
         
         if not pdf_path or not os.path.exists(pdf_path):

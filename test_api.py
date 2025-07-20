@@ -6,7 +6,6 @@ This script demonstrates how to use the different API endpoints
 
 import requests
 import json
-import yaml
 from typing import Dict, Any
 
 # Default API base URL

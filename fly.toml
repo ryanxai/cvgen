@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for yaml2pdf-resume-builder on 2025-07-19T12:52:12-07:00
+# fly.toml app configuration file generated for cvgen on 2025-07-19T12:52:12-07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'yaml2pdf-resume-builder'
+app = 'cvgen'
 primary_region = 'sea'
 
 [build]
