@@ -67,20 +67,30 @@ def format_skills(skills):
     for skill in skills:
         # Ensure ampersands are properly escaped - direct replacement
         category = skill['category'].replace('&', '\\&')
-        items = skill['items'].replace('&', '\\&')
+        
+        # Handle items as a list and join with commas
+        if isinstance(skill['items'], list):
+            items_list = skill['items']
+        else:
+            # Fallback for backward compatibility - treat as string and split
+            items_list = skill['items'].split(', ') if isinstance(skill['items'], str) else [skill['items']]
+        
+        # Join items with commas and escape
+        items_text = ', '.join(items_list)
+        items_text = items_text.replace('&', '\\&')
         
         # Then apply general escaping for other special characters
         category = escape_latex(category)
-        items = escape_latex(items)
+        items_text = escape_latex(items_text)
         
         # Double check ampersands are properly escaped (in case escape_latex modified them)
         category = category.replace('\\\\&', '\\&')
-        items = items.replace('\\\\&', '\\&')
+        items_text = items_text.replace('\\\\&', '\\&')
         
         skills_latex.append(
             f"  \\resumeSubheading\n"
             f"    {{{category}}}{{}}\n"
-            f"    {{{items}}}{{}}\n"
+            f"    {{{items_text}}}{{}}\n"
         )
     return "".join(skills_latex)
 

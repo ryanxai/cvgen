@@ -52,8 +52,8 @@ def test_generate_resume_json(sample_data: Dict[Any, Any] = None):
             },
             "summary": "API Test Resume - Testing FastAPI resume generation functionality",
             "skills": [
-                {"category": "Programming", "items": "Python, JavaScript, FastAPI, REST APIs"},
-                {"category": "Tools", "items": "Docker, Git, LaTeX"}
+                {"category": "Programming", "items": ["Python", "JavaScript", "FastAPI", "REST APIs"]},
+                {"category": "Tools", "items": ["Docker", "Git", "LaTeX"]}
             ],
             "experience": [
                 {

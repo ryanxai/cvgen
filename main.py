@@ -65,7 +65,7 @@ class Contact(BaseModel):
 
 class Skill(BaseModel):
     category: str
-    items: str
+    items: List[str]
 
 class Achievement(BaseModel):
     name: str
