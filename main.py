@@ -137,9 +137,9 @@ async def root():
         "version": "1.0.0",
         "status": "running",
         "documentation": {
-            "swagger_ui": "https://cvgen.fly.dev/docs",
-            "redoc": "https://cvgen.fly.dev/redoc",
-            "openapi_schema": "https://cvgen.fly.dev/openapi.json"
+            "swagger_ui": "https://cvgen-c-jysq.fly.dev/docs",
+            "redoc": "https://cvgen-c-jysq.fly.dev/redoc",
+            "openapi_schema": "https://cvgen-c-jysq.fly.dev/openapi.json"
         },
         "endpoints": {
             "health_check": "GET /health",

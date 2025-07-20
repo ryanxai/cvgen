@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for cvgen on 2025-07-19T12:52:12-07:00
+# fly.toml app configuration file generated for cvgen-c-jysq on 2025-07-19T12:52:12-07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'cvgen'
+app = 'cvgen-c-jysq'
 primary_region = 'sea'
 
 [build]
