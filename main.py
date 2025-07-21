@@ -222,13 +222,28 @@ async def generate_resume(resume_data: ResumeData):
         if not os.path.exists(template_temp_path):
             shutil.copy2('template.tex', template_temp_path)
         
-        pdf_path = compile_latex(latex_path, data=data_dict)
+        pdf_path, error_msg = compile_latex(latex_path, data=data_dict)
         
         # Restore original output directory
         os.environ['OUTPUT_DIR'] = original_output_dir
         
+        # Clean up auxiliary files after restoring output directory
+        cleanup_auxiliary_files()
+        
+        # Also directly clean up auxiliary files from current directory
+        aux_extensions = ['.aux', '.log', '.out', '.fdb_latexmk', '.fls', '.synctex.gz', '.toc', '.nav', '.snm', '.vrb']
+        for ext in aux_extensions:
+            aux_file = f"resume{ext}"
+            if os.path.exists(aux_file):
+                try:
+                    os.remove(aux_file)
+                    print(f"Directly cleaned up: {aux_file}")
+                except Exception as e:
+                    print(f"Could not remove {aux_file}: {e}")
+        
         if not pdf_path or not os.path.exists(pdf_path):
-            raise HTTPException(status_code=500, detail="Failed to generate PDF")
+            error_detail = error_msg if error_msg else "Failed to generate PDF"
+            raise HTTPException(status_code=500, detail=error_detail)
         
         # Also save copies in the root directory for easy access
         import shutil
@@ -574,16 +589,28 @@ async def generate_from_existing_json():
         original_output_dir = os.environ.get('OUTPUT_DIR', '.')
         os.environ['OUTPUT_DIR'] = '.'
         
-        pdf_path = compile_latex(latex_path, data=data_dict)
+        pdf_path, error_msg = compile_latex(latex_path, data=data_dict)
         
         # Clean up auxiliary files
         cleanup_auxiliary_files()
+        
+        # Also directly clean up auxiliary files from current directory
+        aux_extensions = ['.aux', '.log', '.out', '.fdb_latexmk', '.fls', '.synctex.gz', '.toc', '.nav', '.snm', '.vrb']
+        for ext in aux_extensions:
+            aux_file = f"resume{ext}"
+            if os.path.exists(aux_file):
+                try:
+                    os.remove(aux_file)
+                    print(f"Directly cleaned up: {aux_file}")
+                except Exception as e:
+                    print(f"Could not remove {aux_file}: {e}")
         
         # Restore original output directory
         os.environ['OUTPUT_DIR'] = original_output_dir
         
         if not pdf_path or not os.path.exists(pdf_path):
-            raise HTTPException(status_code=500, detail="Failed to generate PDF")
+            error_detail = error_msg if error_msg else "Failed to generate PDF"
+            raise HTTPException(status_code=500, detail=error_detail)
         
         # Also copy files to temp directory for download endpoint compatibility
         import shutil

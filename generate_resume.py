@@ -59,8 +59,13 @@ def format_contact_links(links):
     
     links_latex = []
     for link in links:
-        name = escape_latex(link['name'])
-        links_latex.append(f"\\href{{{link['url']}}}{{{name}}}")
+        # Skip links that don't have both name and url, or if they're empty
+        if not link.get('name') or not link.get('url') or not link['name'].strip() or not link['url'].strip():
+            continue
+        
+        name = escape_latex(link['name'].strip())
+        url = link['url'].strip()
+        links_latex.append(f"\\href{{{url}}}{{{name}}}")
     
     return " $\\vert$ ".join(links_latex)
 
@@ -423,10 +428,47 @@ def generate_latex_resume(data, template_path='template.tex', output_path=None):
     has_contact_info = any([phone, email, location, contact_links])
     
     if has_contact_info:
-        filled_template = filled_template.replace("PHONE", escape_latex(phone))
-        filled_template = filled_template.replace("EMAIL", escape_latex(email))
-        filled_template = filled_template.replace("LOCATION", escape_latex(location))
-        filled_template = filled_template.replace("LINKS", contact_links)
+        # Build contact information dynamically based on available fields
+        contact_parts = []
+        
+        # Build left side of the table
+        left_parts = []
+        if phone:
+            left_parts.append(f"Phone: {escape_latex(phone)}")
+        if email:
+            left_parts.append(f"Email: {escape_latex(email)}")
+        
+        # Build right side of the table
+        right_parts = []
+        if contact_links:
+            right_parts.append(contact_links)
+        if location:
+            right_parts.append(f"Location: {escape_latex(location)}")
+        
+        # Create the contact table
+        if left_parts and right_parts:
+            # Both sides have content
+            contact_table = f"\\begin{{tabular*}}{{\\textwidth}}{{l@{{\\extracolsep{{\\fill}}}}r}}\n  {' & '.join(left_parts)} \\\\\n  {' & '.join(right_parts)}\n\\end{{tabular*}}"
+        elif left_parts:
+            # Only left side has content
+            contact_table = f"\\begin{{tabular*}}{{\\textwidth}}{{l}}\n  {' \\\\\n  '.join(left_parts)}\n\\end{{tabular*}}"
+        elif right_parts:
+            # Only right side has content
+            contact_table = f"\\begin{{tabular*}}{{\\textwidth}}{{r}}\n  {' \\\\\n  '.join(right_parts)}\n\\end{{tabular*}}"
+        else:
+            # This shouldn't happen since we checked has_contact_info
+            contact_table = ""
+        
+        # Replace the contact section with our dynamic table
+        # Use string replacement instead of regex to avoid escape issues
+        old_contact_section = """% Contact information with links on the same line
+\\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}
+  Phone: PHONE & Email: EMAIL \\\\
+  LINKS & Location: LOCATION
+\\end{tabular*}"""
+        new_contact_section = f"""% Contact information with links on the same line
+{contact_table}"""
+        filled_template = filled_template.replace(old_contact_section, new_contact_section)
     else:
         # Remove the entire contact information section
         filled_template = re.sub(r'% Contact information with links on the same line\s*\\begin\{tabular\*\}\{\\textwidth\}\{l@\{\\extracolsep\{\\fill\}\}r\}\s*Phone: PHONE & Email: EMAIL \\\\\s*LINKS & Location: LOCATION\s*\\end\{tabular\*\}', '', filled_template)
@@ -605,7 +647,7 @@ def cleanup_auxiliary_files(output_dir=None, current_dir=True):
                 print(f"Warning: Could not remove {template_aux_file}: {e}")
     
     # Also clean up current directory if requested
-    if current_dir and output_dir != '.':
+    if current_dir:
         for ext in aux_extensions:
             # Clean up resume.* files in current directory
             resume_aux_file = f"resume{ext}"
