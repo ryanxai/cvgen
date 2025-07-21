@@ -182,7 +182,8 @@ async def health_check():
             "environment": {
                 "temp_dir_exists": os.path.exists(TEMP_DIR),
                 "template_file_exists": os.path.exists("template.tex"),
-                "resume_json_exists": os.path.exists("resume.json")
+                "resume_json_exists": os.path.exists("resume.json"),
+                "openrouter_api_key_set": os.getenv("OPENROUTER_API_KEY") is not None
             }
         }
         
@@ -541,6 +542,11 @@ async def improve_summary(request: ImproveSummaryRequest):
         # Get API key from environment variables
         # This will work for both local development (.env file) and deployment (Codespaces secrets)
         api_key = os.getenv("OPENROUTER_API_KEY")
+        
+        # Debug logging to help identify the issue
+        print(f"Debug: OPENROUTER_API_KEY present: {api_key is not None}")
+        print(f"Debug: Environment variables: {list(os.environ.keys())}")
+        
         if not api_key:
             raise HTTPException(
                 status_code=500, 

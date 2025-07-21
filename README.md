@@ -1,5 +1,5 @@
 # CV Generator
- 
+
 ![Resume Preview](docs/resume_preview_top_half.png)
 
 ## Overview
