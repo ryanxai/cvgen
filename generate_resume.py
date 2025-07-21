@@ -54,6 +54,9 @@ def escape_latex(text):
 
 def format_contact_links(links):
     """Format contact links for LaTeX"""
+    if not links:
+        return ""
+    
     links_latex = []
     for link in links:
         name = escape_latex(link['name'])
@@ -63,6 +66,9 @@ def format_contact_links(links):
 
 def format_skills(skills):
     """Format skills section for LaTeX"""
+    if not skills:
+        return ""
+    
     skills_latex = []
     for skill in skills:
         # Ensure ampersands are properly escaped - direct replacement
@@ -74,6 +80,10 @@ def format_skills(skills):
         else:
             # Fallback for backward compatibility - treat as string and split
             items_list = skill['items'].split(', ') if isinstance(skill['items'], str) else [skill['items']]
+        
+        # Skip if no items
+        if not items_list:
+            continue
         
         # Join items with commas and escape
         items_text = ', '.join(items_list)
@@ -96,8 +106,15 @@ def format_skills(skills):
 
 def format_experience(experience_items):
     """Format experience section for LaTeX"""
+    if not experience_items:
+        return ""
+    
     experience_latex = []
     for exp in experience_items:
+        # Skip if essential fields are empty
+        if not exp.get("title") or not exp.get("company"):
+            continue
+            
         # Escape and prepare title and location
         title = escape_latex(exp["title"])
         location = escape_latex(exp["location"])
@@ -164,8 +181,15 @@ def format_experience(experience_items):
 
 def format_education(education_items):
     """Format education section for LaTeX"""
+    if not education_items:
+        return ""
+    
     education_latex = []
     for edu in education_items:
+        # Skip if essential fields are empty
+        if not edu.get('degree') or not edu.get('institution'):
+            continue
+            
         degree = escape_latex(edu['degree'])
         institution = escape_latex(edu['institution'])
         location = escape_latex(edu['location'])
@@ -179,8 +203,15 @@ def format_education(education_items):
 
 def format_awards(awards_items):
     """Format awards section for LaTeX"""
+    if not awards_items:
+        return ""
+    
     awards_latex = []
     for award in awards_items:
+        # Skip if essential fields are empty
+        if not award.get("title") or not award.get("organization"):
+            continue
+            
         title = escape_latex(award["title"])
         organization = escape_latex(award["organization"])
         location = escape_latex(award["location"])
@@ -202,8 +233,15 @@ def format_awards(awards_items):
 
 def format_certifications(cert_items):
     """Format certifications section for LaTeX"""
+    if not cert_items:
+        return ""
+    
     cert_latex = []
     for cert in cert_items:
+        # Skip if essential fields are empty
+        if not cert.get("title") or not cert.get("organization"):
+            continue
+            
         title = escape_latex(cert["title"])
         organization = escape_latex(cert["organization"])
         
@@ -216,8 +254,15 @@ def format_certifications(cert_items):
 
 def format_publications(pub_items):
     """Format publications section for LaTeX"""
+    if not pub_items:
+        return ""
+    
     pub_latex = []
     for pub in pub_items:
+        # Skip if essential fields are empty
+        if not pub.get("authors") or not pub.get("title"):
+            continue
+            
         # Make the author's name bold if it appears in the authors list
         authors = escape_latex(pub["authors"]).replace("M. Ghorbandoost", "\\textbf{M. Ghorbandoost}")
         title = escape_latex(pub["title"])
@@ -245,20 +290,191 @@ def generate_latex_resume(data, template_path='template.tex', output_path=None):
     # Format the contact links
     contact_links = format_contact_links(data["contact"]["links"])
     
+    # Format all sections
+    skills_content = format_skills(data["skills"])
+    experience_content = format_experience(data["experience"])
+    education_content = format_education(data["education"])
+    awards_content = format_awards(data["awards"])
+    certifications_content = format_certifications(data["certifications"])
+    publications_content = format_publications(data["publications"])
+    
+    # Check if we have any content at all
+    has_content = any([
+        data.get("name"),
+        data.get("contact", {}).get("phone"),
+        data.get("contact", {}).get("email"),
+        data.get("contact", {}).get("location"),
+        contact_links,
+        data.get("summary"),
+        skills_content,
+        experience_content,
+        education_content,
+        awards_content,
+        certifications_content,
+        publications_content
+    ])
+    
+    # If no content at all, provide a minimal template
+    if not has_content:
+        template = r"""\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+
+% Setup hyperref for colored links
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+% Page styling
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Fix footskip warning
+\setlength{\footskip}{5pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[2]{
+  \item\small{
+    \textbf{#1}{: #2 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-1pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-5pt}
+}
+
+\newcommand{\resumeSubItem}[2]{\resumeItem{#1}{#2}\vspace{-4pt}}
+
+\renewcommand{\labelitemii}{$\circ$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=*]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+\begin{document}
+
+% Name at the top
+\begin{flushleft}{\LARGE \textbf{Resume}}
+\end{flushleft}
+\vspace{-10pt}
+\noindent{\rule{\linewidth}{0.4pt}}
+
+\vspace{3pt}
+
+
+\end{document}"""
+    
     # Replace the placeholders in the template
     filled_template = template
-    filled_template = filled_template.replace("NAME", escape_latex(data["name"]))
-    filled_template = filled_template.replace("PHONE", escape_latex(data["contact"]["phone"]))
-    filled_template = filled_template.replace("EMAIL", escape_latex(data["contact"]["email"]))
-    filled_template = filled_template.replace("LOCATION", escape_latex(data["contact"]["location"]))
-    filled_template = filled_template.replace("LINKS", contact_links)
-    filled_template = filled_template.replace("SUMMARY", escape_latex(data["summary"]))
-    filled_template = filled_template.replace("SKILLS", format_skills(data["skills"]))
-    filled_template = filled_template.replace("EXPERIENCE", format_experience(data["experience"]))
-    filled_template = filled_template.replace("EDUCATION", format_education(data["education"]))
-    filled_template = filled_template.replace("AWARDS", format_awards(data["awards"]))
-    filled_template = filled_template.replace("CERTIFICATIONS", format_certifications(data["certifications"]))
-    filled_template = filled_template.replace("PUBLICATIONS", format_publications(data["publications"]))
+    filled_template = filled_template.replace("NAME", escape_latex(data.get("name", "Resume")))
+    
+    # Handle contact information conditionally
+    phone = data.get("contact", {}).get("phone", "")
+    email = data.get("contact", {}).get("email", "")
+    location = data.get("contact", {}).get("location", "")
+    
+    # Only include contact section if at least one field has content
+    has_contact_info = any([phone, email, location, contact_links])
+    
+    if has_contact_info:
+        filled_template = filled_template.replace("PHONE", escape_latex(phone))
+        filled_template = filled_template.replace("EMAIL", escape_latex(email))
+        filled_template = filled_template.replace("LOCATION", escape_latex(location))
+        filled_template = filled_template.replace("LINKS", contact_links)
+    else:
+        # Remove the entire contact information section
+        filled_template = re.sub(r'% Contact information with links on the same line\s*\\begin\{tabular\*\}\{\\textwidth\}\{l@\{\\extracolsep\{\\fill\}\}r\}\s*Phone: PHONE & Email: EMAIL \\\\\s*LINKS & Location: LOCATION\s*\\end\{tabular\*\}', '', filled_template)
+    
+    # Handle summary conditionally
+    summary = data.get("summary", "")
+    if summary:
+        filled_template = filled_template.replace("SUMMARY", escape_latex(summary))
+    else:
+        # Remove the entire summary section
+        filled_template = re.sub(r'% Professional Summary\s*\\section\{Professional Summary\}\s*\\justifying\s*SUMMARY', '', filled_template)
+    
+    # Only include sections that have content
+    if skills_content:
+        filled_template = filled_template.replace("SKILLS", skills_content)
+    else:
+        # Remove the skills section entirely
+        filled_template = re.sub(r'% Technical Skills\s*\\section\{Technical Skills\}\s*\\resumeSubHeadingListStart\s*SKILLS\s*\\resumeSubHeadingListEnd', '', filled_template)
+    
+    if experience_content:
+        filled_template = filled_template.replace("EXPERIENCE", experience_content)
+    else:
+        # Remove the experience section entirely
+        filled_template = re.sub(r'% Experience\s*\\section\{Professional Experience\}\s*\\resumeSubHeadingListStart\s*EXPERIENCE\s*\\resumeSubHeadingListEnd', '', filled_template)
+    
+    if education_content:
+        filled_template = filled_template.replace("EDUCATION", education_content)
+    else:
+        # Remove the education section entirely
+        filled_template = re.sub(r'% Education\s*\\section\{Education\}\s*\\resumeSubHeadingListStart\s*EDUCATION\s*\\resumeSubHeadingListEnd', '', filled_template)
+    
+    if awards_content:
+        filled_template = filled_template.replace("AWARDS", awards_content)
+    else:
+        # Remove the awards section entirely
+        filled_template = re.sub(r'% Awards\s*\\section\{Awards and Honors\}\s*\\resumeSubHeadingListStart\s*AWARDS\s*\\resumeSubHeadingListEnd', '', filled_template)
+    
+    if certifications_content:
+        filled_template = filled_template.replace("CERTIFICATIONS", certifications_content)
+    else:
+        # Remove the certifications section entirely
+        filled_template = re.sub(r'% Certifications\s*\\section\{Certifications\}\s*\\resumeSubHeadingListStart\s*CERTIFICATIONS\s*\\resumeSubHeadingListEnd', '', filled_template)
+    
+    if publications_content:
+        filled_template = filled_template.replace("PUBLICATIONS", publications_content)
+    else:
+        # Remove the publications section entirely
+        filled_template = re.sub(r'% Publications\s*\\section\{Selected Publications\}\s*\\begin\{enumerate\}\[noitemsep, leftmargin=\*,label=\{\[\\arabic\*\]\}\]\s*PUBLICATIONS\s*\\end\{enumerate\}', '', filled_template)
     
     # Write the filled template to the output file
     with open(output_path, 'w') as file:
@@ -298,20 +514,22 @@ def compile_latex(latex_file, output_format="pdf", data=None):
             
             # Check if compilation was successful
             if result.returncode != 0:
+                error_msg = f"LaTeX compilation failed with return code {result.returncode}. Error output: {result.stderr}"
                 print(f"Error compiling LaTeX: {result.stderr}")
-                return None
+                return None, error_msg
             
             # Check if the PDF was created
             if not os.path.exists(f"{output_name}.pdf"):
+                error_msg = f"PDF file not generated. Current directory: {os.getcwd()}, Files: {os.listdir('.')}"
                 print(f"Error: PDF file not generated")
                 print(f"Current directory: {os.getcwd()}")
                 print(f"Files in directory: {os.listdir('.')}")
-                return None
+                return None, error_msg
             
             # Copy the PDF to the output directory if we're not already there
             pdf_path = os.path.join(output_dir, f"{output_name}.pdf")
             
-            return pdf_path
+            return pdf_path, None
             
         finally:
             # Return to the original directory
@@ -340,10 +558,11 @@ def compile_latex(latex_file, output_format="pdf", data=None):
                         print(f"Warning: Could not remove {file}: {e}")
     
     except Exception as e:
+        error_msg = f"Exception during LaTeX compilation: {str(e)}"
         print(f"Error: {e}")
         import traceback
         traceback.print_exc()
-        return None
+        return None, error_msg
 
 def cleanup_auxiliary_files(output_dir=None, current_dir=True):
     """
@@ -427,7 +646,7 @@ def main():
         print(f"Generated LaTeX file: {latex_file}")
         
         # Compile LaTeX to PDF
-        pdf_file = compile_latex(latex_file, data=data)
+        pdf_file, error_msg = compile_latex(latex_file, data=data)
         if pdf_file:
             print(f"Generated PDF file: {pdf_file}")
             
@@ -437,7 +656,7 @@ def main():
                         
             print(f"\nSuccess! Your resume has been generated at: {pdf_file}")
         else:
-            print("Failed to generate PDF. Please check LaTeX errors.")
+            print(f"Failed to generate PDF. Please check LaTeX errors: {error_msg}")
     
     except Exception as e:
         print(f"Error generating resume: {e}")

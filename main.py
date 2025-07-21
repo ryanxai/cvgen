@@ -355,8 +355,8 @@ async def upload_json_resume(file: UploadFile = File(...)):
         if not os.path.exists(template_temp_path):
             shutil.copy2('template.tex', template_temp_path)
         
-        pdf_path = compile_latex(latex_path, data=data_dict)
-        print(f"Debug: compile_latex returned pdf_path={pdf_path}")
+        pdf_path, error_msg = compile_latex(latex_path, data=data_dict)
+        print(f"Debug: compile_latex returned pdf_path={pdf_path}, error_msg={error_msg}")
         print(f"Debug: TEMP_DIR={TEMP_DIR}")
         print(f"Debug: current working directory={os.getcwd()}")
         
@@ -381,7 +381,8 @@ async def upload_json_resume(file: UploadFile = File(...)):
         os.remove(upload_path)
         
         if not pdf_path or not os.path.exists(pdf_path):
-            raise HTTPException(status_code=500, detail="Failed to generate PDF")
+            error_detail = error_msg if error_msg else "Failed to generate PDF"
+            raise HTTPException(status_code=500, detail=error_detail)
         
         # Also save copies in the root directory for easy access
         import shutil
