@@ -10,6 +10,8 @@ import tempfile
 import uuid
 import json
 from datetime import datetime
+from dotenv import load_dotenv
+from openai import OpenAI
 
 # Import existing resume generation functions
 from generate_resume import (
@@ -125,6 +127,14 @@ class GenerateResumeResponse(BaseModel):
     filename: str
     download_url: str
 
+class ImproveSummaryRequest(BaseModel):
+    instructions: str
+    summary: str
+
+class ImproveSummaryResponse(BaseModel):
+    improved_summary: str
+    message: str
+
 # Create a temporary directory for generated files
 TEMP_DIR = os.path.join(tempfile.gettempdir(), "resume_builder")
 os.makedirs(TEMP_DIR, exist_ok=True)
@@ -146,6 +156,7 @@ async def root():
             "generate_resume": "POST /generate-resume",
             "upload_json": "POST /upload-json", 
             "generate_from_json": "POST /generate-from-json",
+            "improve_summary": "POST /improve-summary",
             "download_file": "GET /download/{filename}",
             "get_template": "GET /template",
             "get_sample_data": "GET /sample-data",
@@ -517,6 +528,65 @@ async def get_sample_data():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading sample data: {str(e)}")
+
+@app.post("/improve-summary", response_model=ImproveSummaryResponse)
+async def improve_summary(request: ImproveSummaryRequest):
+    """
+    Improve the summary section of a resume using LLMs
+    """
+    try:
+        # Load environment variables
+        load_dotenv()
+        
+        # Get API key from environment
+        api_key = os.getenv("OPENROUTER_API_KEY")
+        if not api_key:
+            raise HTTPException(
+                status_code=500, 
+                detail="OPENROUTER_API_KEY environment variable not set"
+            )
+        
+        # Initialize OpenAI client with OpenRouter
+        client = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=api_key,
+        )
+        
+        # Create the prompt for the LLM
+        prompt = f"""
+Instructions:
+{request.instructions}
+
+Summary Section:
+{request.summary}
+"""
+        
+        # Call the LLM
+        completion = client.chat.completions.create(
+            model="google/gemma-3-27b-it:free",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=500,
+            temperature=0.7
+        )
+        
+        # Extract the improved summary from the response
+        improved_summary = completion.choices[0].message.content.strip()
+        
+        return ImproveSummaryResponse(
+            improved_summary=improved_summary,
+            message="Summary improved successfully"
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error improving summary: {str(e)}"
+        )
 
 # Cleanup endpoint (optional - for development)
 @app.delete("/cleanup")

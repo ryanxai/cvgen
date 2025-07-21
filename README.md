@@ -16,6 +16,16 @@ Run the resume builder as a web API service that accepts HTTP requests.
 - Python 3.6+
 - All dependencies from `requirements.txt`
 - LaTeX distribution (MacTeX, MiKTeX, or TeXLive)
+- OpenRouter API key (for LLM features)
+
+#### Environment Variables
+Copy `env.example` to `.env` and add your OpenRouter API key:
+```bash
+cp env.example .env
+# Edit .env and replace with your actual API key
+```
+
+You can get a free API key from [OpenRouter](https://openrouter.ai/).
 
 #### Quick Start
 
@@ -39,6 +49,7 @@ The API will be available at `http://localhost:8000`
 - **POST `/generate-resume`** - Generate PDF from JSON resume data
 - **POST `/upload-json`** - Upload a JSON file and generate PDF
 - **POST `/generate-from-json`** - Generate resume.tex and resume.pdf from existing resume.json
+- **POST `/improve-summary`** - Improve resume summary using LLMs
 - **GET `/download/{filename}`** - Download generated PDF files
 - **GET `/sample-data`** - Get sample resume data structure
 - **GET `/template`** - Get the LaTeX template content
@@ -90,6 +101,16 @@ curl -X POST "http://localhost:8000/upload-json" \
 curl -X POST "http://localhost:8000/generate-from-json"
 ```
 
+**Improve resume summary using LLMs:**
+```bash
+curl -X POST "http://localhost:8000/improve-summary" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "instructions": "You are a professional recruiter. Improve the writing style of the following summary section to be more professional and concise. Don't provide any other text than the improved summary section.",
+    "summary": "Senior Data Scientist and ML Engineer with 10+ years of expertise in NLP, speech processing, and generative AI. Demonstrated success developing LLM-based systems achieving high accuracy metrics. Specialized in building end-to-end AI solutions from concept to production, combining deep learning architectures with practical business applications for start-ups and big companies."
+  }'
+```
+
 **Download generated PDF:**
 ```bash
 curl "http://localhost:8000/download/resume.pdf" \
@@ -100,6 +121,12 @@ curl "http://localhost:8000/download/resume.pdf" \
 ```bash
 # Run the provided test script
 python3 test_api.py
+
+# Test the improve-summary endpoint
+python3 test_improve_summary.py
+
+# Run examples of improve-summary endpoint
+python3 example_improve_summary.py
 ```
 
 ### Option 2: Command Line (Original)
@@ -184,6 +211,14 @@ result = response.json()
 pdf_response = requests.get(f"http://localhost:8000{result['download_url']}")
 with open('resume.pdf', 'wb') as f:
     f.write(pdf_response.content)
+
+# Improve summary using LLMs
+improve_data = {
+    "instructions": "You are a professional recruiter. Improve the writing style to be more professional and concise.",
+    "summary": "Your current summary text here..."
+}
+improve_response = requests.post('http://localhost:8000/improve-summary', json=improve_data)
+improved_summary = improve_response.json()['improved_summary']
 ```
 
 ### JavaScript/Node.js Client Example
@@ -220,12 +255,15 @@ python3 test_api.py
 ### Project Structure
 ```
 cvgen/
-├── main.py              # FastAPI application
-├── generate_resume.py   # Core resume generation logic
-├── test_api.py         # API test script
-├── template.tex        # LaTeX template
-├── resume.json         # Sample resume data
-├── requirements.txt    # Python dependencies
-├── Dockerfile         # Docker configuration
-└── README.md          # This file
+├── main.py                    # FastAPI application
+├── generate_resume.py         # Core resume generation logic
+├── test_api.py               # API test script
+├── test_improve_summary.py   # Test script for improve-summary endpoint
+├── example_improve_summary.py # Examples of improve-summary usage
+├── template.tex              # LaTeX template
+├── resume.json               # Sample resume data
+├── requirements.txt          # Python dependencies
+├── env.example               # Environment variables example
+├── Dockerfile               # Docker configuration
+└── README.md                # This file
 ```
