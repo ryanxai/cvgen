@@ -535,15 +535,16 @@ async def improve_summary(request: ImproveSummaryRequest):
     Improve the summary section of a resume using LLMs
     """
     try:
-        # Load environment variables
+        # Load environment variables from .env file (for local development)
         load_dotenv()
         
-        # Get API key from environment
+        # Get API key from environment variables
+        # This will work for both local development (.env file) and deployment (Codespaces secrets)
         api_key = os.getenv("OPENROUTER_API_KEY")
         if not api_key:
             raise HTTPException(
                 status_code=500, 
-                detail="OPENROUTER_API_KEY environment variable not set"
+                detail="OPENROUTER_API_KEY environment variable not set. Please ensure it's configured in your environment or GitHub Codespaces secrets."
             )
         
         # Initialize OpenAI client with OpenRouter
