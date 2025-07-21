@@ -6,6 +6,10 @@
     "location": "Boston, MA, United States",
     "links": [
       {
+        "name": "Website",
+        "url": "https://www.johndoe.com"
+      },
+      {
         "name": "GitHub",
         "url": "https://github.com/johndoe-datascientist"
       },
@@ -20,6 +24,10 @@
       {
         "name": "LinkedIn",
         "url": "https://www.linkedin.com/in/john-doe-datascientist/"
+      },
+      {
+        "name": "Twitter",
+        "url": "https://twitter.com/johndoe"
       }
     ]
   },
