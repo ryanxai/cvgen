@@ -10,6 +10,10 @@ This project allows you to maintain your resume content in an easy-to-edit JSON 
 
 ### Option 1: FastAPI Web Service (NEW! 🚀)
 
+> **🚀 Live Demo**: [https://cvgen-c-jysq.fly.dev](https://cvgen-c-jysq.fly.dev)
+> 
+> **📖 API Documentation**: [https://cvgen-c-jysq.fly.dev/docs](https://cvgen-c-jysq.fly.dev/docs)
+
 Run the resume builder as a web API service that accepts HTTP requests.
 
 #### Requirements
@@ -238,9 +242,41 @@ fetch('http://localhost:8000/upload-json', {
 .then(data => console.log(data));
 ```
 
-## Development
+## Deployment
 
-### Running in Development Mode
+### Automatic Deployment with GitHub Actions
+
+This project includes automatic deployment to Fly.io using GitHub Actions. The deployment automatically manages secrets and performs health checks.
+
+#### Quick Setup
+
+1. **Run the setup script**:
+   ```bash
+   ./scripts/setup-deployment.sh
+   ```
+
+2. **Add GitHub Secrets**:
+   - Go to your GitHub repository → Settings → Secrets and variables → Actions
+   - Add `FLY_API_TOKEN` (from the setup script)
+   - Add `OPENROUTER_API_KEY` (your OpenRouter API key)
+
+3. **Deploy**:
+   - Push to the `main` branch to trigger automatic deployment
+   - Or manually trigger from GitHub Actions tab
+
+#### Manual Deployment
+
+```bash
+# Set secrets
+flyctl secrets set OPENROUTER_API_KEY=your_api_key_here
+
+# Deploy
+flyctl deploy
+```
+
+For detailed deployment instructions, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## Development
 ```bash
 # Install dependencies
 pip install -r requirements.txt

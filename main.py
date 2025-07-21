@@ -540,17 +540,13 @@ async def improve_summary(request: ImproveSummaryRequest):
         load_dotenv()
         
         # Get API key from environment variables
-        # This will work for both local development (.env file) and deployment (Codespaces secrets)
+        # This will work for both local development (.env file) and deployment (GitHub secrets)
         api_key = os.getenv("OPENROUTER_API_KEY")
-        
-        # Debug logging to help identify the issue
-        print(f"Debug: OPENROUTER_API_KEY present: {api_key is not None}")
-        print(f"Debug: Environment variables: {list(os.environ.keys())}")
         
         if not api_key:
             raise HTTPException(
                 status_code=500, 
-                detail="OPENROUTER_API_KEY environment variable not set. Please ensure it's configured in your environment or GitHub Codespaces secrets."
+                detail="OPENROUTER_API_KEY environment variable not set. Please ensure it's configured in your environment or GitHub repository secrets."
             )
         
         # Initialize OpenAI client with OpenRouter

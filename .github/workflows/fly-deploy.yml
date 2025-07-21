@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:  # Allow manual triggering
+
 jobs:
   deploy:
     name: Deploy app
@@ -13,7 +15,48 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --remote-only
+      
+      # Set Fly.io secrets from GitHub repository secrets
+      - name: Set Fly.io secrets
+        run: |
+          echo "Setting Fly.io secrets from GitHub repository secrets..."
+          
+          # Set OPENROUTER_API_KEY secret
+          if [ -n "${{ secrets.OPENROUTER_API_KEY }}" ]; then
+            echo "Setting OPENROUTER_API_KEY secret..."
+            flyctl secrets set OPENROUTER_API_KEY="${{ secrets.OPENROUTER_API_KEY }}" --app cvgen-c-jysq
+            echo "✅ OPENROUTER_API_KEY secret set successfully"
+          else
+            echo "⚠️  OPENROUTER_API_KEY secret not found in GitHub repository secrets"
+            echo "Please add OPENROUTER_API_KEY to your repository secrets at:"
+            echo "https://github.com/$(echo $GITHUB_REPOSITORY)/settings/secrets/actions"
+          fi
+          
+          # List current secrets for verification
+          echo "Current Fly.io secrets:"
+          flyctl secrets list --app cvgen-c-jysq
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-          OPENROUTER_API_KEY: ${{ vars.OPENROUTER_API_KEY }}
+      
+      # Deploy the application
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only --app cvgen-c-jysq
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
+      # Health check after deployment
+      - name: Health check
+        run: |
+          echo "Waiting for deployment to be ready..."
+          sleep 30
+          
+          echo "Performing health check..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://cvgen-c-jysq.fly.dev/health)
+          
+          if [ "$response" = "200" ]; then
+            echo "✅ Health check passed - Application is running successfully"
+          else
+            echo "❌ Health check failed - Response code: $response"
+            echo "Check the application logs at: https://fly.io/apps/cvgen-c-jysq/monitoring"
+            exit 1
+          fi
