@@ -448,13 +448,13 @@ def generate_latex_resume(data, template_path='template.tex', output_path=None):
         # Create the contact table
         if left_parts and right_parts:
             # Both sides have content
-            contact_table = f"\\begin{{tabular*}}{{\\textwidth}}{{l@{{\\extracolsep{{\\fill}}}}r}}\n  {' & '.join(left_parts)} \\\\\n  {' & '.join(right_parts)}\n\\end{{tabular*}}"
+            contact_table = "\\begin{tabular*}{\\textwidth}{l@{\\extracolsep{\\fill}}r}\n  " + " & ".join(left_parts) + " \\\\\n  " + " & ".join(right_parts) + "\n\\end{tabular*}"
         elif left_parts:
             # Only left side has content
-            contact_table = f"\\begin{{tabular*}}{{\\textwidth}}{{l}}\n  {' \\\\\n  '.join(left_parts)}\n\\end{{tabular*}}"
+            contact_table = "\\begin{tabular*}{\\textwidth}{l}\n  " + " \\\\\n  ".join(left_parts) + "\n\\end{tabular*}"
         elif right_parts:
             # Only right side has content
-            contact_table = f"\\begin{{tabular*}}{{\\textwidth}}{{r}}\n  {' \\\\\n  '.join(right_parts)}\n\\end{{tabular*}}"
+            contact_table = "\\begin{tabular*}{\\textwidth}{r}\n  " + " \\\\\n  ".join(right_parts) + "\n\\end{tabular*}"
         else:
             # This shouldn't happen since we checked has_contact_info
             contact_table = ""
