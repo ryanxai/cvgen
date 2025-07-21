@@ -3,7 +3,7 @@
 Test script for the Resume Builder FastAPI
 This script demonstrates how to use the different API endpoints
 """
-
+ 
 import requests
 import json
 from typing import Dict, Any
