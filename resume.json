@@ -7,7 +7,7 @@
     "links": [
       {
         "name": "Website",
-        "url": "https://www.johndoe.com"
+        "url": "https://johndoe-datascientist.com"
       },
       {
         "name": "GitHub",
@@ -27,7 +27,7 @@
       },
       {
         "name": "Twitter",
-        "url": "https://twitter.com/johndoe"
+        "url": "https://x.com/johndoe_ds"
       }
     ]
   },
@@ -77,19 +77,19 @@
       "company_url": "https://www.techinnovate.example.com",
       "company_description": "AI-powered business intelligence platform",
       "location": "Boston, MA, United States",
-      "date_start": "Feb 2021",
+      "date_start": "Mar 2021",
       "date_end": "Present",
       "achievements": [
         {
-          "name": "Developed and deployed a machine learning pipeline that predicts customer churn with 87% accuracy, resulting in a 23% reduction in customer attrition through targeted retention campaigns",
+          "name": "Customer Churn Prediction",
           "description": "Developed and deployed a machine learning pipeline that predicts customer churn with 87% accuracy, resulting in a 23% reduction in customer attrition through targeted retention campaigns"
         },
         {
-          "name": "Architected a hybrid recommender system combining collaborative filtering and content-based approaches, increasing user engagement by 35% and average order value by 18%",
+          "name": "Recommender System",
           "description": "Architected a hybrid recommender system combining collaborative filtering and content-based approaches, increasing user engagement by 35% and average order value by 18%"
         },
         {
-          "name": "Built an automated document classification system using BERT, achieving 92% accuracy across 15 document categories, reducing manual processing time by 75%",
+          "name": "NLP Document Classifier",
           "description": "Built an automated document classification system using BERT, achieving 92% accuracy across 15 document categories, reducing manual processing time by 75%"
         }
       ]
@@ -100,19 +100,19 @@
       "company_url": "https://www.findata.example.com",
       "company_description": "Financial services data analytics firm",
       "location": "Boston, MA, United States",
-      "date_start": "May 2018",
-      "date_end": "Jan 2021",
+      "date_start": "Jun 2018",
+      "date_end": "Feb 2021",
       "achievements": [
         {
-          "name": "Led the development of a real-time fraud detection system using gradient boosting models and anomaly detection techniques, reducing fraudulent transactions by 63% and saving an estimated $2.5M annually",
+          "name": "Fraud Detection System",
           "description": "Led the development of a real-time fraud detection system using gradient boosting models and anomaly detection techniques, reducing fraudulent transactions by 63% and saving an estimated $2.5M annually"
         },
         {
-          "name": "Created time series forecasting models to predict market trends with 82% accuracy, enabling clients to optimize investment strategies and achieve 15% above-benchmark returns",
+          "name": "Market Trend Analysis",
           "description": "Created time series forecasting models to predict market trends with 82% accuracy, enabling clients to optimize investment strategies and achieve 15% above-benchmark returns"
         },
         {
-          "name": "Designed a comprehensive risk scoring system integrating structured and unstructured data sources, improving risk assessment accuracy by 40% and reducing default rates by 28%",
+          "name": "Risk Assessment Tool",
           "description": "Designed a comprehensive risk scoring system integrating structured and unstructured data sources, improving risk assessment accuracy by 40% and reducing default rates by 28%"
         }
       ]
@@ -123,15 +123,15 @@
       "company_url": "https://www.healthmetrics.example.com",
       "company_description": "Healthcare analytics company",
       "location": "Boston, MA, United States",
-      "date_start": "Jul 2016",
-      "date_end": "Apr 2018",
+      "date_start": "Aug 2016",
+      "date_end": "May 2018",
       "achievements": [
         {
-          "name": "Developed a predictive model identifying high-risk patients for hospital readmission with 79% accuracy, helping healthcare providers implement targeted interventions that reduced readmission rates by 22%",
+          "name": "Patient Readmission Predictor",
           "description": "Developed a predictive model identifying high-risk patients for hospital readmission with 79% accuracy, helping healthcare providers implement targeted interventions that reduced readmission rates by 22%"
         },
         {
-          "name": "Implemented a CNN-based classification system for medical images, achieving 88% accuracy in identifying abnormalities and reducing diagnostic time by 45%",
+          "name": "Medical Image Classification",
           "description": "Implemented a CNN-based classification system for medical images, achieving 88% accuracy in identifying abnormalities and reducing diagnostic time by 45%"
         }
       ]
@@ -139,18 +139,18 @@
   ],
   "education": [
     {
-      "degree": "M.S. in Data Science in ",
+      "degree": "M.S. in Data Science",
       "institution": "Massachusetts Institute of Technology",
       "location": "Boston, MA, United States",
-      "date_start": "Aug 2014",
-      "date_end": "Apr 2016"
+      "date_start": "Sep 2014",
+      "date_end": "May 2016"
     },
     {
-      "degree": "B.S. in Computer Science, Minor in Statistics in ",
+      "degree": "B.S. in Computer Science, Minor",
       "institution": "University of California, Berkeley",
       "location": "Boston, MA, United States",
-      "date_start": "Aug 2010",
-      "date_end": "Apr 2014"
+      "date_start": "Sep 2010",
+      "date_end": "May 2014"
     }
   ],
   "awards": [

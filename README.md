@@ -53,7 +53,7 @@ The API will be available at `http://localhost:8000`
 - **POST `/generate-resume`** - Generate PDF from JSON resume data
 - **POST `/upload-json`** - Upload a JSON file and generate PDF
 - **POST `/generate-from-json`** - Generate resume.tex and resume.pdf from existing resume.json
-- **POST `/improve-summary`** - Improve resume summary using LLMs
+- **POST `/improve-resume-section`** - Improve any resume section using LLMs
 - **GET `/download/{filename}`** - Download generated PDF files
 - **GET `/sample-data`** - Get sample resume data structure
 - **GET `/template`** - Get the LaTeX template content
@@ -105,13 +105,25 @@ curl -X POST "http://localhost:8000/upload-json" \
 curl -X POST "http://localhost:8000/generate-from-json"
 ```
 
-**Improve resume summary using LLMs:**
+**Improve any resume section using LLMs:**
 ```bash
-curl -X POST "http://localhost:8000/improve-summary" \
+curl -X POST "http://localhost:8000/improve-resume-section" \
   -H "Content-Type: application/json" \
   -d '{
-    "instructions": "You are a professional recruiter. Improve the writing style of the following summary section to be more professional and concise. Don't provide any other text than the improved summary section.",
-    "summary": "Senior Data Scientist and ML Engineer with 10+ years of expertise in NLP, speech processing, and generative AI. Demonstrated success developing LLM-based systems achieving high accuracy metrics. Specialized in building end-to-end AI solutions from concept to production, combining deep learning architectures with practical business applications for start-ups and big companies."
+    "instructions": "You are a professional recruiter. Improve the writing style to be more professional and concise. Don't provide any other text than the improved section.",
+    "section_name": "Summary",
+    "section_text": "Senior Data Scientist and ML Engineer with 10+ years of expertise in NLP, speech processing, and generative AI. Demonstrated success developing LLM-based systems achieving high accuracy metrics. Specialized in building end-to-end AI solutions from concept to production, combining deep learning architectures with practical business applications for start-ups and big companies."
+  }'
+```
+
+**Improve experience section:**
+```bash
+curl -X POST "http://localhost:8000/improve-resume-section" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "instructions": "Add more quantifiable achievements and make the language more impactful.",
+    "section_name": "Experience",
+    "section_text": "Led development team of 5 engineers to build a new product feature that increased user engagement by 25%."
   }'
 ```
 
@@ -126,10 +138,10 @@ curl "http://localhost:8000/download/resume.pdf" \
 # Run the provided test script
 python3 test_api.py
 
-# Test the improve-summary endpoint
+# Test the improve-resume-section endpoint
 python3 test_improve_summary.py
 
-# Run examples of improve-summary endpoint
+# Run examples of improve-resume-section endpoint
 python3 example_improve_summary.py
 ```
 
@@ -216,13 +228,14 @@ pdf_response = requests.get(f"http://localhost:8000{result['download_url']}")
 with open('resume.pdf', 'wb') as f:
     f.write(pdf_response.content)
 
-# Improve summary using LLMs
+# Improve any resume section using LLMs
 improve_data = {
     "instructions": "You are a professional recruiter. Improve the writing style to be more professional and concise.",
-    "summary": "Your current summary text here..."
+    "section_name": "Summary",
+    "section_text": "Your current section text here..."
 }
-improve_response = requests.post('http://localhost:8000/improve-summary', json=improve_data)
-improved_summary = improve_response.json()['improved_summary']
+improve_response = requests.post('http://localhost:8000/improve-resume-section', json=improve_data)
+improved_section = improve_response.json()['improved_section']
 ```
 
 ### JavaScript/Node.js Client Example
@@ -294,8 +307,8 @@ cvgen/
 ├── main.py                    # FastAPI application
 ├── generate_resume.py         # Core resume generation logic
 ├── test_api.py               # API test script
-├── test_improve_summary.py   # Test script for improve-summary endpoint
-├── example_improve_summary.py # Examples of improve-summary usage
+├── test_improve_summary.py   # Test script for improve-resume-section endpoint
+├── example_improve_summary.py # Examples of improve-resume-section usage
 ├── template.tex              # LaTeX template
 ├── resume.json               # Sample resume data
 ├── requirements.txt          # Python dependencies

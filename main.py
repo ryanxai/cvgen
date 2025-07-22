@@ -127,12 +127,13 @@ class GenerateResumeResponse(BaseModel):
     filename: str
     download_url: str
 
-class ImproveSummaryRequest(BaseModel):
+class ImproveResumeSectionRequest(BaseModel):
     instructions: str
-    summary: str
+    section_name: str
+    section_text: str
 
-class ImproveSummaryResponse(BaseModel):
-    improved_summary: str
+class ImproveResumeSectionResponse(BaseModel):
+    improved_section: str
     message: str
 
 # Create a temporary directory for generated files
@@ -156,7 +157,7 @@ async def root():
             "generate_resume": "POST /generate-resume",
             "upload_json": "POST /upload-json", 
             "generate_from_json": "POST /generate-from-json",
-            "improve_summary": "POST /improve-summary",
+            "improve_resume_section": "POST /improve-resume-section",
             "download_file": "GET /download/{filename}",
             "get_template": "GET /template",
             "get_sample_data": "GET /sample-data",
@@ -530,10 +531,10 @@ async def get_sample_data():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error loading sample data: {str(e)}")
 
-@app.post("/improve-summary", response_model=ImproveSummaryResponse)
-async def improve_summary(request: ImproveSummaryRequest):
+@app.post("/improve-resume-section", response_model=ImproveResumeSectionResponse)
+async def improve_resume_section(request: ImproveResumeSectionRequest):
     """
-    Improve the summary section of a resume using LLMs
+    Improve any section of a resume using LLMs
     """
     try:
         # Load environment variables from .env file (for local development)
@@ -560,8 +561,8 @@ async def improve_summary(request: ImproveSummaryRequest):
 Instructions:
 {request.instructions}
 
-Summary Section:
-{request.summary}
+{request.section_name}:
+{request.section_text}
 """
         
         # Call the LLM
@@ -577,18 +578,18 @@ Summary Section:
             temperature=0.7
         )
         
-        # Extract the improved summary from the response
-        improved_summary = completion.choices[0].message.content.strip()
+        # Extract the improved section from the response
+        improved_section = completion.choices[0].message.content.strip()
         
-        return ImproveSummaryResponse(
-            improved_summary=improved_summary,
-            message="Summary improved successfully"
+        return ImproveResumeSectionResponse(
+            improved_section=improved_section,
+            message="Resume section improved successfully"
         )
         
     except Exception as e:
         raise HTTPException(
             status_code=500, 
-            detail=f"Error improving summary: {str(e)}"
+            detail=f"Error improving resume section: {str(e)}"
         )
 
 # Cleanup endpoint (optional - for development)
